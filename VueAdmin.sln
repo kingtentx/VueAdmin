@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingAdmin.Data", "src\VueAdmin.Data\VueAdmin.Data.csproj", "{5CE3A6F8-63EF-478F-895D-6FEDB94B5258}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingAdmin.Repository", "src\VueAdmin.Repository\VueAdmin.Repository.csproj", "{43A7605A-9B74-41E6-818B-242B73A0984F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingAdmin.Helper", "src\VueAdmin.Helper\VueAdmin.Helper.csproj", "{570E6278-6889-4FA4-AD5E-B96A7CB03CED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingAdmin.Core", "src\VueAdmin.Core\VueAdmin.Core.csproj", "{B11DD2CA-4F3B-40D5-9D0C-FCF1EE530C73}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingAdmin.Web", "src\VueAdmin.Web\VueAdmin.Web.csproj", "{E1590300-DDFF-4AA9-B7E1-799FDC785E49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KingAdmin.Api", "src\VueAdmin.Api\VueAdmin.Api.csproj", "{DE8EF391-A78C-4A97-857D-AC94D4728726}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5CE3A6F8-63EF-478F-895D-6FEDB94B5258}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CE3A6F8-63EF-478F-895D-6FEDB94B5258}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CE3A6F8-63EF-478F-895D-6FEDB94B5258}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CE3A6F8-63EF-478F-895D-6FEDB94B5258}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43A7605A-9B74-41E6-818B-242B73A0984F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43A7605A-9B74-41E6-818B-242B73A0984F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43A7605A-9B74-41E6-818B-242B73A0984F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43A7605A-9B74-41E6-818B-242B73A0984F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{570E6278-6889-4FA4-AD5E-B96A7CB03CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{570E6278-6889-4FA4-AD5E-B96A7CB03CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{570E6278-6889-4FA4-AD5E-B96A7CB03CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{570E6278-6889-4FA4-AD5E-B96A7CB03CED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B11DD2CA-4F3B-40D5-9D0C-FCF1EE530C73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B11DD2CA-4F3B-40D5-9D0C-FCF1EE530C73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B11DD2CA-4F3B-40D5-9D0C-FCF1EE530C73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B11DD2CA-4F3B-40D5-9D0C-FCF1EE530C73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1590300-DDFF-4AA9-B7E1-799FDC785E49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1590300-DDFF-4AA9-B7E1-799FDC785E49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1590300-DDFF-4AA9-B7E1-799FDC785E49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1590300-DDFF-4AA9-B7E1-799FDC785E49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE8EF391-A78C-4A97-857D-AC94D4728726}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE8EF391-A78C-4A97-857D-AC94D4728726}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE8EF391-A78C-4A97-857D-AC94D4728726}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE8EF391-A78C-4A97-857D-AC94D4728726}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F38A8B0F-C635-40EF-A579-DC9051526E23}
+	EndGlobalSection
+EndGlobal

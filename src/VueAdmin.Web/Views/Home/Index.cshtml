@@ -1,0 +1,52 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalR Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.js"></script>
+</head>
+<body>
+    <h1>SignalR 在线人数统计</h1>
+    <div id="userCount"></div>
+
+    <script>
+        // 建立连接
+        async function start(url) {
+            try {
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl(url)//跨域需要使用绝对地址
+                    .configureLogging(signalR.LogLevel.Information)
+                    .withAutomaticReconnect() // 设置自动重连机制
+                    .build();
+            } catch (err) {
+                console.log(err);
+                setTimeout(start, 10000);//错误重连
+            }
+        }
+
+        // 开始signalr连接
+        const connect = async (url) => {
+            await start(url);
+            console.log(`${new Date().toLocaleString()}：SignalR已连接成功!`);
+        };
+
+        // 调用服务端方法 发送消息
+        async function send(methodName, param) {
+            try {
+                await connection.invoke(methodName, param);
+            } catch (err) { console.error(err); }
+        }
+
+        //断开连接
+        const disconnect = async () => {
+            await connection.stop();
+            console.log(`${new Date().toLocaleString()}：SignalR已断开连接!`);
+        };
+    </script>
+</body>
+</html>
