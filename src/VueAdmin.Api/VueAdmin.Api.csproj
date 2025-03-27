@@ -31,6 +31,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\VueAdmin.Core\VueAdmin.Core.csproj" />
 	  <ProjectReference Include="..\VueAdmin.Data\VueAdmin.Data.csproj" />
 	  <ProjectReference Include="..\VueAdmin.Helper\VueAdmin.Helper.csproj" />
 	  <ProjectReference Include="..\VueAdmin.Repository\VueAdmin.Repository.csproj" />

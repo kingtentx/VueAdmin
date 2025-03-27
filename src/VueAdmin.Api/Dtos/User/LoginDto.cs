@@ -5,7 +5,7 @@ namespace VueAdmin.Api.Dtos
     /// <summary>
     /// 
     /// </summary>
-    public class UserInputDto
+    public class LoginDto
     {
         /// <summary>
         /// 手机
@@ -17,13 +17,13 @@ namespace VueAdmin.Api.Dtos
         /// </summary>
         [Required]
         public string Password { get; set; }
-        /// <summary>
-        /// key
-        /// </summary>        
-        public string ValidateKey { get; set; }
-        /// <summary>
-        /// 验证码
-        /// </summary>       
-        public string ValidateValue { get; set; }
+        ///// <summary>
+        ///// key
+        ///// </summary>        
+        //public string ValidateKey { get; set; }
+        ///// <summary>
+        ///// 验证码
+        ///// </summary>       
+        //public string ValidateValue { get; set; }
     }
 }

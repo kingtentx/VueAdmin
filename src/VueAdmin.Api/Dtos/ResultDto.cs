@@ -1,4 +1,6 @@
 ﻿
+using VueAdmin.Core.Enums;
+
 namespace VueAdmin.Api.Dtos
 {
     /// <summary>
@@ -9,7 +11,7 @@ namespace VueAdmin.Api.Dtos
         /// <summary>
         /// 状态码
         /// </summary>
-        public string Code { get; set; } = ResCode.Fail;
+        public int Code { get; set; } = (int)ResultCode.Fail;
         /// <summary>
         /// 消息
         /// </summary>      
@@ -19,40 +21,74 @@ namespace VueAdmin.Api.Dtos
         /// </summary>
         public object Data { get; set; }
 
+        public bool Success { get; set; } = false;
         /// <summary>
         /// 数据赋值
         /// </summary>
         /// <param name="data"></param>
         /// <param name="code"></param>
         /// <param name="msg"></param>
-        public virtual void SetData(object data, string code = ResCode.Success, string msg = "success")
+        public virtual void SetData(object data, int code = (int)ResultCode.Success, string msg = "success")
         {
             this.Code = code;
             this.Msg = msg;
             this.Data = data;
+            this.Success = true;
         }
     }
 
     /// <summary>
-    /// 结果码
+    /// api返回结果
     /// </summary>
-    public class ResCode
+    /// <typeparam name="T"></typeparam>
+    public class ResultDto<T>
     {
         /// <summary>
-        /// 成功
+        /// 状态码
         /// </summary>
-        public const string Success = "000";
+        public int Code { get; set; } = (int)ResultCode.Fail;
         /// <summary>
-        /// 失败
-        /// </summary>
-        public const string Fail = "400";
+        /// 消息
+        /// </summary>      
+        public string Msg { get; set; } = "fail";
         /// <summary>
-        /// 无权限
+        /// 
         /// </summary>
-        public const string Nopermit = "401";
+        public int Count { get; set; } = 0;
+        /// <summary>
+        /// 返回数据
+        /// </summary>
+        public T Data { get; set; }
+        public bool Success { get; set; } = false;
+        /// <summary>
+        ///  数据赋值
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="msg"></param>
+        public virtual void SetData(int code = (int)ResultCode.Success, string msg = "success")
+        {
+            this.Code = code;
+            this.Msg = msg;
+            this.Success = true;
+        }
 
-
+        /// <summary>
+        /// 数据赋值
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="count"></param>
+        /// <param name="code"></param>
+        /// <param name="msg"></param>
+        public virtual void SetData(T data, int count = 0, int code = (int)ResultCode.Success, string msg = "success")
+        {
+            this.Code = code;
+            this.Msg = msg;
+            this.Data = data;
+            this.Count = count;
+            this.Success = true;
+        }
     }
+
 
 
 }

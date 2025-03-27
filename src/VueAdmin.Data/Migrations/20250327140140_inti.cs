@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VueAdmin.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class inti : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,10 +31,10 @@ namespace VueAdmin.Data.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Remark = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    Roles = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     IsAdmin = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
@@ -113,68 +113,6 @@ namespace VueAdmin.Data.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Brand",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    BrandName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    BrandLogo = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreateBy = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    UpdateBy = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Brand", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "CmbcOrder",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    ProductSn = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    UserUuid = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    OrderSn = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    DelayLoadUrl = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    UsedUrl = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Phone = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Openid = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Receiver = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ReceiverTel = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ReceiverAddress = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    MailUrl = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    OrderNo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    OrderStatus = table.Column<int>(type: "int", nullable: false),
-                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CmbcOrder", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Menu",
                 columns: table => new
                 {
@@ -194,8 +132,7 @@ namespace VueAdmin.Data.Migrations
                     Buttons = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Sort = table.Column<int>(type: "int", nullable: false),
-                    IsHasSubset = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsShow = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsDelete = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -207,45 +144,6 @@ namespace VueAdmin.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Menu", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Order",
-                columns: table => new
-                {
-                    OrderId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    OrderNo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    DeliverName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    DeliverPhone = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Province = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    City = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Region = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Address = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    TotalAmount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    Freight = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    BuyTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    DeliveryTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    OrderStatus = table.Column<int>(type: "int", nullable: false),
-                    PaymentCode = table.Column<int>(type: "int", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    Remarks = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    IsDelete = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Order", x => x.OrderId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -275,46 +173,6 @@ namespace VueAdmin.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PictureGallery", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Product",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    ProductName = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ProductSn = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ProductNo = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CoverImage = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ImageList = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ApplyPrice = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    ShowPrice = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    SalePrice = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    TotalCount = table.Column<long>(type: "bigint", nullable: false),
-                    State = table.Column<int>(type: "int", nullable: false),
-                    NeedMail = table.Column<int>(type: "int", nullable: false),
-                    Remark = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    BuyNotice = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    IsDelete = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreateBy = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    UpdateBy = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Product", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -352,31 +210,6 @@ namespace VueAdmin.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RoleMenu", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Tenant",
-                columns: table => new
-                {
-                    TenantId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    TenantName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Contacts = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Telephone = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Email = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Remarks = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tenant", x => x.TenantId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -427,48 +260,6 @@ namespace VueAdmin.Data.Migrations
                     table.PrimaryKey("PK_User", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "OrderGoods",
-                columns: table => new
-                {
-                    SubId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    OrderId = table.Column<long>(type: "bigint", nullable: false),
-                    SkuId = table.Column<long>(type: "bigint", nullable: false),
-                    ProductName = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    SettlementPrice = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    LogisticCode = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    LogisticsCompanyCode = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    LogisticsCompanyName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    DeliveryTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    ProductSn = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderGoods", x => x.SubId);
-                    table.ForeignKey(
-                        name: "FK_OrderGoods_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "OrderId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderGoods_OrderId",
-                table: "OrderGoods",
-                column: "OrderId");
         }
 
         /// <inheritdoc />
@@ -487,22 +278,10 @@ namespace VueAdmin.Data.Migrations
                 name: "Attachments");
 
             migrationBuilder.DropTable(
-                name: "Brand");
-
-            migrationBuilder.DropTable(
-                name: "CmbcOrder");
-
-            migrationBuilder.DropTable(
                 name: "Menu");
 
             migrationBuilder.DropTable(
-                name: "OrderGoods");
-
-            migrationBuilder.DropTable(
                 name: "PictureGallery");
-
-            migrationBuilder.DropTable(
-                name: "Product");
 
             migrationBuilder.DropTable(
                 name: "Role");
@@ -511,13 +290,7 @@ namespace VueAdmin.Data.Migrations
                 name: "RoleMenu");
 
             migrationBuilder.DropTable(
-                name: "Tenant");
-
-            migrationBuilder.DropTable(
                 name: "User");
-
-            migrationBuilder.DropTable(
-                name: "Order");
         }
     }
 }

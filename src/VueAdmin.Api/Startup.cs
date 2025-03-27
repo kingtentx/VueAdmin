@@ -34,11 +34,9 @@ namespace VueAdmin.Api
 
             #region 数据访问
             services.AddDbContext<AppDbContext>(options =>
-                 options.UseMySql(_configuration.GetConnectionString(SqlConnection), MySqlServerVersion.LatestSupportedServerVersion),
-                  contextLifetime: ServiceLifetime.Transient,
-                  optionsLifetime: ServiceLifetime.Singleton);
+                 options.UseMySql(_configuration.GetConnectionString(SqlConnection), MySqlServerVersion.LatestSupportedServerVersion));
 
-            services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             #endregion
 
             #region  序列化数据
@@ -127,8 +125,7 @@ namespace VueAdmin.Api
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "Api",
-                    Description = "民生银行商城项目",
+                    Title = "Api"                  
                 });
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -163,44 +160,22 @@ namespace VueAdmin.Api
             #endregion
 
             #region 跨域
-            //// If using Kestrel:
-            //services.Configure<KestrelServerOptions>(options =>
-            //{
-            //    options.AllowSynchronousIO = true;
-            //});
-
-            //// If using IIS:
-            //services.Configure<IISServerOptions>(options =>
-            //{
-            //    options.AllowSynchronousIO = true;
-            //});
-            #endregion
-
-
-            //services.AddCors(options =>
-            //{
-            //    options.AddPolicy(AllowSpecificMethods,
-            //        builder =>
-            //        {
-            //            builder.WithOrigins("http://localhost:8080") // 允许的源  
-            //                   .AllowAnyHeader()
-            //                   .AllowAnyMethod()
-            //                   .AllowCredentials();
-            //        });
-            //});
             services.AddCors(options =>
             {
-                options.AddPolicy("allowAllCors",
-                     builder =>
-                     {
-                         builder
-                         .SetIsOriginAllowed(origin => true)
-                         //.AllowAnyOrigin()
-                         .AllowAnyHeader()
-                         .WithMethods(new string[] { "POST", "GET", "OPTIONS" })
-                         .AllowCredentials();
-                     });
+                options.AddPolicy(AllowSpecificMethods, builder =>
+                {
+                    builder.WithOrigins(
+                        _configuration["App:CorsOrigins"]
+                            .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                            .Select(o => o.RemovePostFix("/"))
+                            .ToArray()
+                    )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+                });
             });
+            #endregion
 
             //services.AddSingleton<IHostedService, LogisticsService>();
             //services.AddSignalR();
@@ -240,13 +215,7 @@ namespace VueAdmin.Api
             //  builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod()
             //);
 
-            //启用Swagger中间件
-            app.UseSwagger();
-            app.UseSwagger(c =>
-            {
-                c.RouteTemplate = "api/{documentName}/swagger.json";
-            });
-            //使用Swagger中间件
+            #region 使用Swagger中间件
             app.UseSwagger(options =>
             {
                 options.PreSerializeFilters.Add((swagger, httpReq) =>
@@ -262,6 +231,12 @@ namespace VueAdmin.Api
                     }
                 });
             });
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("v1/swagger.json", "VueAdminWeb API");
+            });
+            #endregion
+
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("v1/swagger.json", "VueAdmin API");
@@ -280,14 +255,14 @@ namespace VueAdmin.Api
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
             var serviceScope = serviceScopeFactory.CreateScope();
 
-            //using (var dbContext = serviceScope.ServiceProvider.GetService<AppDbContext>())
-            //{
-            //    //数据库是否存在:  true=未创建， false=已创建
-            //    if (!dbContext.Database.EnsureCreated())
-            //    {
-            //        new DataInitializer().Create(dbContext);//注册默认超级管理员
-            //    }
-            //}
+            using (var dbContext = serviceScope.ServiceProvider.GetService<AppDbContext>())
+            {
+                //数据库是否存在:  true=未创建， false=已创建
+                if (!dbContext.Database.EnsureCreated())
+                {
+                    new DataInitializer().Create(dbContext);//注册默认超级管理员
+                }
+            }
             #endregion
         }
     }

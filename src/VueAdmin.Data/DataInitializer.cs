@@ -28,7 +28,7 @@ namespace VueAdmin.Data
                 {
                     UserName = SuperAdmin,
                     RealName = "超级管理员",
-                    Password = ToMD5("123qwe"),
+                    Password = ToMD5("admin123"),
                     CreateTime = DateTime.Now,
                     IsAdmin = true,
                     IsActive = true

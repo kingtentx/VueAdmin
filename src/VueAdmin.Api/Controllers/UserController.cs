@@ -1,6 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using VueAdmin.Api.Dtos;
 using VueAdmin.Data;
 using VueAdmin.Helper;
@@ -12,20 +17,21 @@ namespace VueAdmin.Api.Controllers
     /// <summary>
     /// 
     /// </summary>
-    [Route("api/[controller]/[action]")]
+    [Route("api/user")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
 
     public class UserController : ApiBaseController
     {
         private ICacheService _cache;
         private IMapper _mapper;
         private IRepository<Admin> _userRepository;
-
+        private JwtConfig _jwtSettings;
 
         public UserController(
             IMapper mapper,
             ICacheService cache,
+            IOptions<JwtConfig> jwt,
             IRepository<Admin> userRepository
 
             )
@@ -33,7 +39,7 @@ namespace VueAdmin.Api.Controllers
             _cache = cache;
             _mapper = mapper;
             _userRepository = userRepository;
-
+            _jwtSettings = jwt.Value;
         }
 
         /// <summary>
@@ -41,19 +47,47 @@ namespace VueAdmin.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
+        [Route("login")]
         [AllowAnonymous]
-        public async Task<ResultDto> TestSM4([FromBody] InputDto input)
+        public async Task<ResultDto<UserInfoDto>> Login(LoginDto input)
         {
-            var result = new ResultDto();
+            var result = new ResultDto<UserInfoDto>();
 
-            string strKey = input.Appid;
+            if (!string.IsNullOrEmpty(input.UserName) && !string.IsNullOrEmpty(input.Password))//判断账号密码是否正确
+            {
+                var user = await _userRepository.GetOneAsync(p => p.UserName == input.UserName && p.Password == StringHelper.ToMD5(input.Password));
+                if (user == null)
+                {
+                    result.Msg = "用户启或密码错误";
+                    return result;
+                }
 
-            var sm4 = new SM4Utils();
-            sm4.secretKey = strKey;
-            sm4.hexString = false;
-            var msg = sm4.Encrypt_ECB_ToBase64(input.Data);
-            result.SetData(msg);
+                var claim = new Claim[]{
+                    new Claim(ClaimTypes.Sid,user.AdminId.ToString()),
+                    new Claim(ClaimTypes.Name,user.UserName)
+                };
 
+                //对称秘钥
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+                //签名证书(秘钥，加密算法)
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                //生成token  [注意]需要nuget添加Microsoft.AspNetCore.Authentication.JwtBearer包，并引用System.IdentityModel.Tokens.Jwt命名空间
+                var token = new JwtSecurityToken(_jwtSettings.Issuer, _jwtSettings.Audience, claim, DateTime.Now, DateTime.Now.AddMinutes(_jwtSettings.Expiration), creds);
+             
+                var obj = new UserInfoDto
+                {
+                    Username = user.UserName,
+                    Nickname = user.RealName,
+                    Avatar = "",
+                    AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                    RefreshToken = "",
+                    Roles = new List<string> { "admin" },
+                    Permissions = new List<string> { "*:*:*" },
+                    Expires = DateTime.Now.AddMinutes(_jwtSettings.Expiration)
+                };
+                result.SetData(obj);
+            }
             return result;
         }
 
@@ -62,38 +96,50 @@ namespace VueAdmin.Api.Controllers
         /// </summary>       
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult> GetUserInfo()
+        [Route("info")]
+        public async Task<ResultDto> GetUserInfo()
         {
-            //var user = LoginUser(User);
-            var query = await _userRepository.GetOneAsync(p => p.UserName == LoginUser.UserName);
+            var result = new ResultDto();
 
-            if (query != null)
+            var obj = new
             {
-                var data = _mapper.Map(query, new LoginUserDto());
-                return Ok(data);
-            }
-            else
-            {
-                return BadRequest("用户不存在");
-            }
+                roles = "admin",
+                name = LoginUser.UserName,
+                avatar = "https://cdn.mediecogroup.com/49/493822b4/493822b4085245bdb8b3625575df7ad3.jpg",
+                introduction = "0000"
+            };
+            result.SetData(obj);
+
+            return result;
         }
-
+        //logout
 
         /// <summary>
-        /// 获取用户信息
+        /// 
         /// </summary>       
         /// <returns></returns>
-        [HttpGet]
-        public async Task<string> Test(string obj)
+        [HttpPost]
+        [Route("logout")]
+        public async Task<ResultDto> Logout()
         {
-            var keys = "bbb";
-            _cache.Add(keys, obj, TimeSpan.FromHours(1));
-            _cache.Remove("aaa");
-            var str = _cache.Get<string>(keys);
-            return str;
+            var result = new ResultDto();
 
+            result.SetData("success");
+
+            return result;
         }
 
+        [HttpPost]
+        [Route("list")]
+        public async Task<ResultDto> GetUsers(int pageIndex, int pageSize)
+        {
+            var result = new ResultDto();
+
+            var list = _userRepository.GetList(p => true, pageIndex, pageSize);
+            result.SetData(list);
+
+            return result;
+        }
 
     }
 }
