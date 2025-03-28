@@ -1,30 +1,33 @@
 ﻿
 
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+
 namespace VueAdmin.Api.Dtos
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class PagedDto
     {
 
-        /// <summary>
-        /// 数据总条数
-        /// </summary>
-        public long TotalCount { get; set; } = 0;
-        /// <summary>
-        /// 总页数
-        /// </summary>
-        public long PageNo
-        {
-            get
-            {
-                return TotalCount % pageSize > 0 ? TotalCount / pageSize + 1 : TotalCount / pageSize;
-            }
-            set
-            {
-                this.pageIndex = value;
-            }
-        }
-        private long pageIndex = 1;
+        public int Page { get; set; } = 1;
 
-        private long pageSize = 20;
+        public int PageSize { get; set; } = 10;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class ItemList<T>
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Count { get; set; } = 0;
+        /// <summary>
+        /// 返回数据
+        /// </summary>
+        public List<T> Items { get; set; }
     }
 }

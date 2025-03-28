@@ -1,5 +1,6 @@
 ﻿using VueAdmin.Data.ExtModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace VueAdmin.Data
@@ -7,6 +8,7 @@ namespace VueAdmin.Data
     /// <summary>
     /// 图片库
     /// </summary>
+    [Table("picture_gallery")]
     public class PictureGallery : ExtCreateModel, ICreateByModel
     {
         [Key]

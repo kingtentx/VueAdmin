@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using VueAdmin.Data.ExtModel;
 
 namespace VueAdmin.Data
@@ -6,6 +7,7 @@ namespace VueAdmin.Data
     /// <summary>
     /// 附件
     /// </summary>
+    [Table("attachments")]
     public class Attachments : ExtCreateModel, ICreateByModel
     {
         [Key]

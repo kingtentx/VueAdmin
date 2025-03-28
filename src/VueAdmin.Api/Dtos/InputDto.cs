@@ -2,15 +2,11 @@
 
 namespace VueAdmin.Api.Dtos
 {
-    public class InputDto
+    public class GetInputDto
     {
         /// <summary>
         /// 
         /// </summary>
-        public string Appid { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Data { get; set; }
+        public string Filter { get; set; }
     }
 }

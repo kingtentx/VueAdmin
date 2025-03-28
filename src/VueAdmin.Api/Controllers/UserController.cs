@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using VueAdmin.Api.Dtos;
+using VueAdmin.Api.Dtos.User;
 using VueAdmin.Data;
 using VueAdmin.Helper;
 using VueAdmin.Helper.SM4;
@@ -25,14 +27,14 @@ namespace VueAdmin.Api.Controllers
     {
         private ICacheService _cache;
         private IMapper _mapper;
-        private IRepository<Admin> _userRepository;
+        private IRepository<User> _userRepository;
         private JwtConfig _jwtSettings;
 
         public UserController(
             IMapper mapper,
             ICacheService cache,
             IOptions<JwtConfig> jwt,
-            IRepository<Admin> userRepository
+            IRepository<User> userRepository
 
             )
         {
@@ -63,7 +65,7 @@ namespace VueAdmin.Api.Controllers
                 }
 
                 var claim = new Claim[]{
-                    new Claim(ClaimTypes.Sid,user.AdminId.ToString()),
+                    new Claim(ClaimTypes.Sid,user.Id.ToString()),
                     new Claim(ClaimTypes.Name,user.UserName)
                 };
 
@@ -74,7 +76,7 @@ namespace VueAdmin.Api.Controllers
 
                 //生成token  [注意]需要nuget添加Microsoft.AspNetCore.Authentication.JwtBearer包，并引用System.IdentityModel.Tokens.Jwt命名空间
                 var token = new JwtSecurityToken(_jwtSettings.Issuer, _jwtSettings.Audience, claim, DateTime.Now, DateTime.Now.AddMinutes(_jwtSettings.Expiration), creds);
-             
+
                 var obj = new UserInfoDto
                 {
                     Username = user.UserName,
@@ -91,28 +93,6 @@ namespace VueAdmin.Api.Controllers
             return result;
         }
 
-        /// <summary>
-        /// 获取用户信息
-        /// </summary>       
-        /// <returns></returns>
-        [HttpGet]
-        [Route("info")]
-        public async Task<ResultDto> GetUserInfo()
-        {
-            var result = new ResultDto();
-
-            var obj = new
-            {
-                roles = "admin",
-                name = LoginUser.UserName,
-                avatar = "https://cdn.mediecogroup.com/49/493822b4/493822b4085245bdb8b3625575df7ad3.jpg",
-                introduction = "0000"
-            };
-            result.SetData(obj);
-
-            return result;
-        }
-        //logout
 
         /// <summary>
         /// 
@@ -120,23 +100,117 @@ namespace VueAdmin.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("logout")]
-        public async Task<ResultDto> Logout()
+        public async Task<ResultDto<string>> Logout()
         {
-            var result = new ResultDto();
+            var result = new ResultDto<string>();
 
             result.SetData("success");
 
             return result;
         }
 
+        /// <summary>
+        /// 获取用户信息
+        /// </summary>       
+        /// <returns></returns>
+        [HttpGet]
+        [Route("info")]
+        public async Task<ResultDto<UserDto>> GetUserInfo(int id)
+        {
+            var result = new ResultDto<UserDto>();
+
+            var query = await _userRepository.GetOneAsync(p => p.Id == id);
+            var data = _mapper.Map<UserDto>(query);
+            result.SetData(data);
+
+            return result;
+        }
+
         [HttpPost]
         [Route("list")]
-        public async Task<ResultDto> GetUsers(int pageIndex, int pageSize)
+        public async Task<ResultDto<ItemList<UserDto>>> GetUserList([FromBody] GetUserInputDto input)
         {
-            var result = new ResultDto();
+            var result = new ResultDto<ItemList<UserDto>>();
 
-            var list = _userRepository.GetList(p => true, pageIndex, pageSize);
-            result.SetData(list);
+            var where = LambdaHelper.True<User>().And(p => true);
+            if (!string.IsNullOrEmpty(input.UserAccount))
+            {
+                where = where.And(p => p.UserName.Contains(input.UserAccount));
+            }
+            if (!string.IsNullOrEmpty(input.UserName))
+            {
+                where = where.And(p => p.RealName.Contains(input.UserName));
+            }
+            if (input.IsActive != null)
+            {
+                where = where.And(p => p.IsActive == input.IsActive);
+            }
+
+            var items = await _userRepository.GetListAsync(where, p => p.Id, input.Page, input.PageSize);
+
+            var data = new ItemList<UserDto>
+            {
+                Count = items.Count,
+                Items = _mapper.Map<List<UserDto>>(items.List)
+            };
+
+            result.SetData(data);
+            return result;
+        }
+
+        [HttpPost]
+        [Route("add")]
+        public async Task<ResultDto<bool>> Create([FromBody] CreateUpdateUserDto input)
+        {
+            var result = new ResultDto<bool>();
+            var model = _mapper.Map<User>(input);
+            model.Password = StringHelper.ToMD5("123qwe");
+
+            var entity = await _userRepository.AddAsync(model);
+            result.SetData(entity.Id > 0);
+            return result;
+        }
+
+        [HttpPost]
+        [Route("edit")]
+        public async Task<ResultDto<bool>> Update([FromBody] CreateUpdateUserDto input)
+        {
+            var result = new ResultDto<bool>();
+
+            var query = await _userRepository.GetOneAsync(p => p.UserName.Equals(input.UserName) && p.Id != input.Id);
+
+            if (query != null)
+            {
+                result.Msg = "用户名已存在";
+                return result;
+            }
+
+            var entity = _userRepository.GetQueryable(p => p.Id == input.Id).AsNoTracking().FirstOrDefault();
+
+            var model = _mapper.Map<User>(input);
+            model.Password = entity.Password;
+            model.CreationTime = entity.CreationTime;
+            model.UpdateTime = DateTime.Now;
+
+            var res = await _userRepository.UpdateAsync(model);
+            result.SetData(res);
+            return result;
+        }
+
+        [HttpPost]
+        [Route("delete")]
+        public async Task<ResultDto<bool>> Delete(int[] ids)
+        {
+            var result = new ResultDto<bool>();
+
+            var list = await _userRepository.GetListAsync(p => ids.Contains(p.Id));
+            var users = new List<User>();
+            foreach (var item in list)
+            {
+                item.IsDelete = true;
+                users.Add(item);
+            }
+            await _userRepository.UpdateAsync(users);
 
             return result;
         }

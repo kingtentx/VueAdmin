@@ -7,6 +7,7 @@ namespace VueAdmin.Data
     /// <summary>
     /// 配置
     /// </summary>  
+    [Table("app_settings")]
     public class AppSettings : ExtFullModifyModel
     {
         /// <summary>

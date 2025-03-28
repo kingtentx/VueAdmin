@@ -5,10 +5,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VueAdmin.Data
 {
-    public class Menu : ExtFullModifyModel, IModifyModel, ISortModel
+    [Table("menu")]
+    public class Menu : ExtFullModifyModel, IsDeleteModel, ISortModel
     {
         /// <summary>
         /// ID

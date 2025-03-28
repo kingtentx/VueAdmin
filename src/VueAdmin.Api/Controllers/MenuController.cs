@@ -23,9 +23,9 @@ namespace VueAdmin.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("get-menus")]
-        public async Task<ResultDto> GetMenus()
+        public async Task<ResultDto<object>> GetMenus()
         {
-            var result = new ResultDto();
+            var result = new ResultDto<object>();
 
             // 读取 JSON 文件的路径
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "AppData/menu.json");
@@ -35,9 +35,9 @@ namespace VueAdmin.Api.Controllers
             {
                 result.Msg = "JSON 文件未找到。";
                 return result;
-            }           
+            }
             string jsonContent = System.IO.File.ReadAllText(filePath);
-          
+
             var jsonData = JsonConvert.DeserializeObject<object>(jsonContent);
             result.SetData(jsonData);
             return result;

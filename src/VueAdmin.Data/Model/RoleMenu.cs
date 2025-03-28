@@ -7,6 +7,7 @@ namespace VueAdmin.Data
     /// <summary>
     /// 角色菜单
     /// </summary>  
+    [Table("role_menu")]
     public class RoleMenu : ExtCreateModel
     {
         [Key]

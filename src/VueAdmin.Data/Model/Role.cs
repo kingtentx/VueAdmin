@@ -7,13 +7,14 @@ namespace VueAdmin.Data
     /// <summary>
     /// 角色
     /// </summary> 
+    [Table("role")]
     public class Role : ExtCreateModel, IActiveModel
     {
         /// <summary>
         /// 角色ID
         /// </summary>
         [Key]
-        public int RoleId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// 角色名称
         /// </summary>
