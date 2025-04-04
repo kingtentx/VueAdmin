@@ -25,12 +25,21 @@ namespace VueAdmin.Api.Dtos
 
         /// <summary>
         ///  数据赋值
-        /// </summary>
-        /// <param name="code"></param>
+        /// </summary>    
         /// <param name="msg"></param>
-        public virtual void Ok(int code = (int)ResultCode.Success, string msg = "success")
+        public virtual void Ok(string msg = "success")
         {
-            this.Code = code;
+            this.Code = (int)ResultCode.Success;
+            this.Msg = msg;
+        }
+
+        /// <summary>
+        ///  数据赋值
+        /// </summary>   
+        /// <param name="msg"></param>
+        public virtual void Error(string msg = "fail")
+        {
+            this.Code = (int)ResultCode.Fail;
             this.Msg = msg;
         }
 

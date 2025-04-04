@@ -3,6 +3,7 @@ using VueAdmin.Api.Dtos;
 using VueAdmin.Data;
 using Newtonsoft.Json;
 using VueAdmin.Api.Dtos.User;
+using VueAdmin.Api.Dtos.UploadDto;
 
 namespace VueAdmin.Api.Models.MapperConfig
 {
@@ -23,6 +24,9 @@ namespace VueAdmin.Api.Models.MapperConfig
             CreateMap<User, LoginUserDto>()
                 .ForMember(d => d.UserId, m => m.MapFrom(c => c.Id))
                 .ReverseMap();
+
+            CreateMap<PictureGallery, PictureGalleryDto>().ReverseMap();
+            CreateMap<Attachments, AttachmentsDto>().ReverseMap();
         }
     }
 }

@@ -51,4 +51,17 @@
         /// </summary>
         Tenant = 1,
     }
+
+    public enum FileType
+    {
+        /// <summary>
+        /// 图片
+        /// </summary>
+        Image = 0,
+
+        /// <summary>
+        /// 文件
+        /// </summary>
+        File = 1
+    }
 }

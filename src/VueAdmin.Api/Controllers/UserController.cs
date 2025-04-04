@@ -208,6 +208,12 @@ namespace VueAdmin.Api.Controllers
         public async Task<ResultDto<bool>> Update([FromBody] CreateUpdateUserDto input)
         {
             var result = new ResultDto<bool>();
+            var query = await _userRepository.GetOneAsync(p => p.UserName.Equals(input.UserName) && p.Id != input.Id);
+            if (query != null)
+            {
+                result.Msg = "用户名已存在";
+                return result;
+            }
 
             var entity = _userRepository.GetQueryable(p => p.Id == input.Id).AsNoTracking().FirstOrDefault();
             if (entity == null)
@@ -222,13 +228,7 @@ namespace VueAdmin.Api.Controllers
                     result.Msg = "用户名不能修改";
                     return result;
                 }
-            }
-            var query = await _userRepository.GetOneAsync(p => p.UserName.Equals(input.UserName) && p.Id != input.Id);
-            if (query != null)
-            {
-                result.Msg = "用户名已存在";
-                return result;
-            }
+            }         
 
             var model = _mapper.Map<User>(input);
             if (string.IsNullOrWhiteSpace(input.Password))
@@ -239,6 +239,12 @@ namespace VueAdmin.Api.Controllers
             {
                 model.Password = StringHelper.ToMD5(input.Password);
             }
+
+            if (string.IsNullOrWhiteSpace(input.Avatar))
+            {
+                model.Avatar = entity.Avatar;
+            }
+          
             model.CreationTime = entity.CreationTime;
             model.UpdateBy = LoginUser.UserName;
             model.UpdateTime = DateTime.Now;
