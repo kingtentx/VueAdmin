@@ -27,7 +27,7 @@ namespace VueAdmin.Data
                 var admin = new User
                 {
                     UserName = SuperAdmin,
-                    RealName = "超级管理员",
+                    NickName = "超级管理员",
                     Password = ToMD5("admin123"),                   
                     IsAdmin = true,
                     IsActive = true

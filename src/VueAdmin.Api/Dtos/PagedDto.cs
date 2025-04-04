@@ -1,7 +1,5 @@
 ﻿
 
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
-
 namespace VueAdmin.Api.Dtos
 {
     /// <summary>
@@ -9,8 +7,7 @@ namespace VueAdmin.Api.Dtos
     /// </summary>
     public class PagedDto
     {
-
-        public int Page { get; set; } = 1;
+        public int CurrentPage { get; set; } = 1;
 
         public int PageSize { get; set; } = 10;
     }
@@ -24,10 +21,20 @@ namespace VueAdmin.Api.Dtos
         /// <summary>
         /// 
         /// </summary>
-        public int Count { get; set; } = 0;
+        public int Total { get; set; } = 0;
         /// <summary>
         /// 返回数据
         /// </summary>
-        public List<T> Items { get; set; }
+        public List<T> List { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int PageSize { get; set; } = 10;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int CurrentPage { get; set; } = 1;
+
+
     }
 }

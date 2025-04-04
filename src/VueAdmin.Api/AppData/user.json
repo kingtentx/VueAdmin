@@ -1,0 +1,36 @@
+[
+  {
+    "avatar": "https://avatars.githubusercontent.com/u/44761321",
+    "username": "admin",
+    "nickname": "小铭",
+    "phone": "15888886789",
+    "email": "1111@qq.com",
+    "sex": 0,
+    "id": 2,
+    "status": true,
+    "dept": {
+      // 部门id
+      "id": 103,
+      // 部门名称
+      "name": "研发部门"
+    },
+    "remark": "管理员",
+    "createTime": 1605456000000
+  },
+  {
+    "avatar": "https://avatars.githubusercontent.com/u/52823142",
+    "username": "common",
+    "nickname": "小林",
+    "phone": "18288882345",
+    "email": "2222@qq.com",
+    "sex": 1,
+    "id": 3,
+    "status": true,
+    "dept": {
+      "id": 105,
+      "name": "测试部门"
+    },
+    "remark": "普通用户",
+    "createTime": 1605456000000
+  }
+]

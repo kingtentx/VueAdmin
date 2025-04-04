@@ -1,7 +1,13 @@
-﻿namespace VueAdmin.Api.Dtos.User
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace VueAdmin.Api.Dtos.User
 {
     public class CreateUpdateUserDto
     {
+        /// <summary>
+        /// 部门ID
+        /// </summary>
+       public int? parentId { get; set; }
         /// <summary>
         /// ID
         /// </summary>      
@@ -10,12 +16,17 @@
         /// <summary>
         /// 管理员名称
         /// </summary>     
+        [Required(ErrorMessage = "请输入用户名")]
         public string UserName { get; set; }
+        /// <summary>
+        /// 密码
+        /// </summary>
+        public string Password { get; set; }
 
         /// <summary>
         /// 手机
         /// </summary>  
-        public string Telphone { get; set; }
+        public string Phone { get; set; }
         /// <summary>
         /// Email
         /// </summary>  
@@ -27,16 +38,19 @@
         /// <summary>
         /// 真实姓名
         /// </summary> 
-        public string RealName { get; set; }
+        public string Nickname { get; set; }
         /// <summary>
         /// 备注
         /// </summary>  
-        public string Remark { get; set; }      
-
+        public string Remark { get; set; }
         /// <summary>
         /// 是否启用
         /// </summary>
-        public bool IsActive { get; set; }
+        public bool Status { get; set; } = false;
+        /// <summary>
+        /// 0-男 1-女
+        /// </summary>
+        public int? Sex { get; set; }
        
     }
 }

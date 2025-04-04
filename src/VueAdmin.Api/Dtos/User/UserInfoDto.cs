@@ -9,11 +9,11 @@
         /// <summary>
         /// 
         /// </summary>
-        public string Username { get; set; }
+        public string UserName { get; set; }
         /// <summary>
         /// 小铭
         /// </summary>
-        public string Nickname { get; set; }
+        public string NickName { get; set; }
         /// <summary>
         /// 
         /// </summary>

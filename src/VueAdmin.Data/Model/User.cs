@@ -14,7 +14,7 @@ namespace VueAdmin.Data
         /// 管理员ID
         /// </summary>
         [Key]
-        public int Id { get; set; }      
+        public int Id { get; set; }
         /// <summary>
         /// 管理员名称
         /// </summary>
@@ -46,7 +46,7 @@ namespace VueAdmin.Data
         /// 真实姓名
         /// </summary>       
         [StringLength(ModelUnits.Len_50)]
-        public string RealName { get; set; }
+        public string NickName { get; set; }
         /// <summary>
         /// 备注
         /// </summary>       
@@ -62,6 +62,10 @@ namespace VueAdmin.Data
         /// 是否超级管理员
         /// </summary>
         public bool IsAdmin { get; set; } = false;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int? Sex { get; set; }
         /// <summary>
         /// 是否启用
         /// </summary>

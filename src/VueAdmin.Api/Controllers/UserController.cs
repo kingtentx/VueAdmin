@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -79,9 +81,9 @@ namespace VueAdmin.Api.Controllers
 
                 var obj = new UserInfoDto
                 {
-                    Username = user.UserName,
-                    Nickname = user.RealName,
-                    Avatar = "",
+                    UserName = user.UserName,
+                    NickName = user.NickName,
+                    Avatar = user.Avatar,
                     AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
                     RefreshToken = "",
                     Roles = new List<string> { "admin" },
@@ -130,28 +132,50 @@ namespace VueAdmin.Api.Controllers
         [Route("list")]
         public async Task<ResultDto<ItemList<UserDto>>> GetUserList([FromBody] GetUserInputDto input)
         {
+            #region Test
+            //var result = new ResultDto<ItemList<object>>();
+            //string filePath = Path.Combine(Directory.GetCurrentDirectory(), "AppData/user.json");
+            //if (!System.IO.File.Exists(filePath))
+            //{
+            //    result.Msg = "JSON 文件未找到。";
+            //    return result;
+            //}
+            //string jsonContent = await System.IO.File.ReadAllTextAsync(filePath);
+            //var itmes = JsonConvert.DeserializeObject<List<object>>(jsonContent);
+
+            //var data = new ItemList<object>
+            //{
+            //    Total = 2,
+            //    List = itmes
+            //};
+            //result.SetData(data);
+            //return result;
+            #endregion
+
             var result = new ResultDto<ItemList<UserDto>>();
 
-            var where = LambdaHelper.True<User>().And(p => true);
-            if (!string.IsNullOrEmpty(input.UserAccount))
-            {
-                where = where.And(p => p.UserName.Contains(input.UserAccount));
-            }
+            var where = LambdaHelper.True<User>().And(p => p.IsDelete == false);
             if (!string.IsNullOrEmpty(input.UserName))
             {
-                where = where.And(p => p.RealName.Contains(input.UserName));
+                where = where.And(p => p.UserName.Contains(input.UserName));
             }
-            if (input.IsActive != null)
+            if (!string.IsNullOrEmpty(input.Phone))
             {
-                where = where.And(p => p.IsActive == input.IsActive);
+                where = where.And(p => p.Telphone.Equals(input.Phone));
+            }
+            if (input.Status != null)
+            {
+                where = where.And(p => p.IsActive == input.Status);
             }
 
-            var items = await _userRepository.GetListAsync(where, p => p.Id, input.Page, input.PageSize);
+            var items = await _userRepository.GetListAsync(where, p => p.Id, input.CurrentPage, input.PageSize);
 
             var data = new ItemList<UserDto>
             {
-                Count = items.Count,
-                Items = _mapper.Map<List<UserDto>>(items.List)
+                Total = items.Count,
+                List = _mapper.Map<List<UserDto>>(items.List),
+                CurrentPage = input.CurrentPage,
+                PageSize = input.PageSize
             };
 
             result.SetData(data);
@@ -163,8 +187,16 @@ namespace VueAdmin.Api.Controllers
         public async Task<ResultDto<bool>> Create([FromBody] CreateUpdateUserDto input)
         {
             var result = new ResultDto<bool>();
+            var query = await _userRepository.GetOneAsync(p => p.UserName.Equals(input.UserName));
+            if (query != null)
+            {
+                result.Msg = "用户名已存在";
+                return result;
+            }
+
             var model = _mapper.Map<User>(input);
-            model.Password = StringHelper.ToMD5("123qwe");
+            model.Password = StringHelper.ToMD5("00000000");
+            model.CreateBy = LoginUser.UserName;
 
             var entity = await _userRepository.AddAsync(model);
             result.SetData(entity.Id > 0);
@@ -177,19 +209,38 @@ namespace VueAdmin.Api.Controllers
         {
             var result = new ResultDto<bool>();
 
+            var entity = _userRepository.GetQueryable(p => p.Id == input.Id).AsNoTracking().FirstOrDefault();
+            if (entity == null)
+            {
+                result.Msg = "用户不存在";
+                return result;
+            }
+            else
+            {
+                if (entity.UserName.Trim() != input.UserName.Trim())
+                {
+                    result.Msg = "用户名不能修改";
+                    return result;
+                }
+            }
             var query = await _userRepository.GetOneAsync(p => p.UserName.Equals(input.UserName) && p.Id != input.Id);
-
             if (query != null)
             {
                 result.Msg = "用户名已存在";
                 return result;
             }
 
-            var entity = _userRepository.GetQueryable(p => p.Id == input.Id).AsNoTracking().FirstOrDefault();
-
             var model = _mapper.Map<User>(input);
-            model.Password = entity.Password;
+            if (string.IsNullOrWhiteSpace(input.Password))
+            {
+                model.Password = entity.Password;
+            }
+            else
+            {
+                model.Password = StringHelper.ToMD5(input.Password);
+            }
             model.CreationTime = entity.CreationTime;
+            model.UpdateBy = LoginUser.UserName;
             model.UpdateTime = DateTime.Now;
 
             var res = await _userRepository.UpdateAsync(model);
@@ -210,8 +261,8 @@ namespace VueAdmin.Api.Controllers
                 item.IsDelete = true;
                 users.Add(item);
             }
-            await _userRepository.UpdateAsync(users);
-
+            var b = await _userRepository.UpdateAsync(users);
+            result.SetData(b);
             return result;
         }
 

@@ -13,11 +13,10 @@ namespace VueAdmin.Api.Dtos
         /// 管理员名称
         /// </summary>     
         public string UserName { get; set; }
-      
         /// <summary>
         /// 手机
         /// </summary>  
-        public string Telphone { get; set; }
+        public string Phone { get; set; }
         /// <summary>
         /// Email
         /// </summary>  
@@ -29,23 +28,36 @@ namespace VueAdmin.Api.Dtos
         /// <summary>
         /// 真实姓名
         /// </summary> 
-        public string RealName { get; set; }
+        public string NickName { get; set; }
         /// <summary>
         /// 备注
         /// </summary>  
         public string Remark { get; set; }
-        /// <summary>
-        /// 角色,多角色英文逗号隔开
-        /// </summary>
-        public string Roles { get; set; }
-     
-        /// <summary>
-        /// 是否启用
-        /// </summary>
-        public bool IsActive { get; set; }
+
+        ///// <summary>
+        ///// 角色,多角色英文逗号隔开
+        ///// </summary>
+        //public string Roles { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
-        public DateTime CreateTime { get; set; }
+        public int? Sex { get; set; }
+        /// <summary>
+        /// 是否启用
+        /// </summary>
+        public bool Status { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime CreationTime { get; set; }
+
+        public List<DeptDto> Dept { get; set; } = new List<DeptDto>() { new DeptDto() };
+    }
+
+    public class DeptDto
+    {
+        public int Id { get; set; } = 0;
+        public string Name { get; set; } = "-";
     }
 }
