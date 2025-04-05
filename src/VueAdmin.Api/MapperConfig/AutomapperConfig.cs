@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using VueAdmin.Api.Dtos;
 using VueAdmin.Data;
-using Newtonsoft.Json;
-using VueAdmin.Api.Dtos.User;
-using VueAdmin.Api.Dtos.UploadDto;
+
 
 namespace VueAdmin.Api.Models.MapperConfig
 {
@@ -27,6 +25,15 @@ namespace VueAdmin.Api.Models.MapperConfig
 
             CreateMap<PictureGallery, PictureGalleryDto>().ReverseMap();
             CreateMap<Attachments, AttachmentsDto>().ReverseMap();
+
+            CreateMap<Menu, CreateUpdateMenuDto>().ReverseMap();
+            CreateMap<Menu, MenuDto>().ReverseMap();
+            CreateMap<Menu, MenuItemDto>().ReverseMap();          
+
+            CreateMap<Role, CreateUpdateRoleDto>().ForMember(d => d.Status, m => m.MapFrom(c => c.IsActive)).ReverseMap();
+            CreateMap<Role, RoleDto>().ForMember(d => d.Status, m => m.MapFrom(c => c.IsActive)).ReverseMap();
+            CreateMap<Role, RoleItemDto>().ReverseMap();
+
         }
     }
 }

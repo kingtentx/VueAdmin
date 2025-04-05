@@ -1,5 +1,5 @@
 {
-  "role": [
+  "roles": [
     {
       "createTime": 1605456000000,
       "updateTime": 1684512000000,
@@ -29,5 +29,106 @@
       "id": 2,
       "name": "普通角色"
     }
+  ],
+  "role-menu": [
+    {
+      "parentId": 0,
+      "id": 200,
+      "menuType": 0,
+      "title": "权限管理"
+    },
+    {
+      "parentId": 200,
+      "id": 201,
+      "menuType": 0,
+      "title": "页面权限"
+    },
+    {
+      "parentId": 200,
+      "id": 202,
+      "menuType": 0,
+      "title": "按钮权限"
+    },
+    {
+      "parentId": 202,
+      "id": 203,
+      "menuType": 3,
+      "title": "添加"
+    },
+    {
+      "parentId": 202,
+      "id": 204,
+      "menuType": 3,
+      "title": "修改"
+    },
+    {
+      "parentId": 202,
+      "id": 205,
+      "menuType": 3,
+      "title": "删除"
+    },
+    {
+      "parentId": 0,
+      "id": 300,
+      "menuType": 0,
+      "title": "系统管理"
+    },
+    {
+      "parentId": 300,
+      "id": 301,
+      "menuType": 0,
+      "title": "用户管理"
+    },
+    {
+      "parentId": 300,
+      "id": 302,
+      "menuType": 0,
+      "title": "角色管理"
+    },
+    {
+      "parentId": 300,
+      "id": 303,
+      "menuType": 0,
+      "title": "菜单管理"
+    },
+    {
+      "parentId": 300,
+      "id": 304,
+      "menuType": 0,
+      "title": "部门管理"
+    }
+  ],
+  "role-menu-ids": [
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    300,
+    301,
+    302,
+    303,
+    304,
+    400,
+    401,
+    402,
+    403,
+    404,
+    500,
+    501,
+    502,
+    503
   ]
 }

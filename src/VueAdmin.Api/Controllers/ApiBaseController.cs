@@ -2,6 +2,7 @@
 using VueAdmin.Api.Dtos;
 using Serilog;
 using System.Security.Claims;
+using VueAdmin.Helper;
 
 namespace VueAdmin.Api.Controllers
 {
@@ -21,7 +22,8 @@ namespace VueAdmin.Api.Controllers
                     LoginUserDto user = new LoginUserDto()
                     {
                         UserId = Convert.ToInt32(identity.FindFirst(ClaimTypes.Sid)?.Value),
-                        UserName = identity.FindFirst(ClaimTypes.Name)?.Value
+                        UserName = identity.FindFirst(ClaimTypes.Name)?.Value,
+                        Role = !string.IsNullOrWhiteSpace(identity.FindFirst(ClaimTypes.Role)?.Value) ? StringHelper.StrArrToIntArr(identity.FindFirst(ClaimTypes.Role)?.Value.ToString().Split(',')) : new int[] { 0 }
                     };
                     return user;
                 }
@@ -67,7 +69,7 @@ namespace VueAdmin.Api.Controllers
         /// </summary>
         [ApiExplorerSettings(IgnoreApi = true)]
         public string GetIPAddress()
-        {            
+        {
             var httpContextAccessor = new HttpContextAccessor();
             var ip = httpContextAccessor.HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();//X-Forwarded-For可能会包含多个IP
             if (string.IsNullOrEmpty(ip))

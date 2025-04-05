@@ -37,6 +37,10 @@ namespace VueAdmin.Api.Dtos
         /// 管理员名称
         /// </summary>
         public string UserName { get; set; } = string.Empty;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int[] Role { get; set; }
 
     }
 }

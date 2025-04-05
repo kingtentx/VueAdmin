@@ -16,9 +16,11 @@ namespace VueAdmin.Data
         /// 角色ID
         /// </summary>
         public int RoleId { get; set; }
-
+        /// <summary>
+        /// 菜单ID
+        /// </summary>
         [StringLength(ModelUnits.Len_100)]
-        public string Permission { get; set; }
+        public int MenuId { get; set; }
 
     }
 }

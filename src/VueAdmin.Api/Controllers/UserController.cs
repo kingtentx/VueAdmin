@@ -6,11 +6,14 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using Org.BouncyCastle.Utilities;
+using Serilog;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using VueAdmin.Api.Common;
 using VueAdmin.Api.Dtos;
-using VueAdmin.Api.Dtos.User;
 using VueAdmin.Data;
 using VueAdmin.Helper;
 using VueAdmin.Helper.SM4;
@@ -30,20 +33,22 @@ namespace VueAdmin.Api.Controllers
         private ICacheService _cache;
         private IMapper _mapper;
         private IRepository<User> _userRepository;
+        private IRepository<UserLogin> _logRepository;
         private JwtConfig _jwtSettings;
 
         public UserController(
             IMapper mapper,
             ICacheService cache,
             IOptions<JwtConfig> jwt,
-            IRepository<User> userRepository
-
+            IRepository<User> userRepository,
+            IRepository<UserLogin> logRepository
             )
         {
             _cache = cache;
             _mapper = mapper;
             _userRepository = userRepository;
             _jwtSettings = jwt.Value;
+            _logRepository = logRepository;
         }
 
         /// <summary>
@@ -59,7 +64,7 @@ namespace VueAdmin.Api.Controllers
 
             if (!string.IsNullOrEmpty(input.UserName) && !string.IsNullOrEmpty(input.Password))//判断账号密码是否正确
             {
-                var user = await _userRepository.GetOneAsync(p => p.UserName == input.UserName && p.Password == StringHelper.ToMD5(input.Password));
+                var user = await _userRepository.GetOneAsync(p => p.UserName == input.UserName && p.Password == StringHelper.ToMD5(input.Password) && p.IsDelete == false);
                 if (user == null)
                 {
                     result.Msg = "用户启或密码错误";
@@ -68,7 +73,8 @@ namespace VueAdmin.Api.Controllers
 
                 var claim = new Claim[]{
                     new Claim(ClaimTypes.Sid,user.Id.ToString()),
-                    new Claim(ClaimTypes.Name,user.UserName)
+                    new Claim(ClaimTypes.Name,user.UserName),
+                    new Claim(ClaimTypes.Role,user.Roles)
                 };
 
                 //对称秘钥
@@ -79,7 +85,7 @@ namespace VueAdmin.Api.Controllers
                 //生成token  [注意]需要nuget添加Microsoft.AspNetCore.Authentication.JwtBearer包，并引用System.IdentityModel.Tokens.Jwt命名空间
                 var token = new JwtSecurityToken(_jwtSettings.Issuer, _jwtSettings.Audience, claim, DateTime.Now, DateTime.Now.AddMinutes(_jwtSettings.Expiration), creds);
 
-                var obj = new UserInfoDto
+                var info = new UserInfoDto
                 {
                     UserName = user.UserName,
                     NickName = user.NickName,
@@ -90,7 +96,22 @@ namespace VueAdmin.Api.Controllers
                     Permissions = new List<string> { "*:*:*" },
                     Expires = DateTime.Now.AddMinutes(_jwtSettings.Expiration)
                 };
-                result.SetData(obj);
+                try
+                {
+                    var model = new UserLogin()
+                    {
+                        UserName = user.UserName,
+                        Client = Request.Headers["User-Agent"].ToString(),
+                        LoginDate = DateTime.Now,
+                        LoginIp = Utils.GetIPAddress()
+                    };
+                    await _logRepository.AddAsync(model);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.Message);
+                }
+                result.SetData(info);
             }
             return result;
         }
@@ -187,7 +208,7 @@ namespace VueAdmin.Api.Controllers
         public async Task<ResultDto<bool>> Create([FromBody] CreateUpdateUserDto input)
         {
             var result = new ResultDto<bool>();
-            var query = await _userRepository.GetOneAsync(p => p.UserName.Equals(input.UserName));
+            var query = await _userRepository.GetOneAsync(p => p.UserName.Equals(input.UserName) && p.IsDelete == false);
             if (query != null)
             {
                 result.Msg = "用户名已存在";
@@ -208,14 +229,14 @@ namespace VueAdmin.Api.Controllers
         public async Task<ResultDto<bool>> Update([FromBody] CreateUpdateUserDto input)
         {
             var result = new ResultDto<bool>();
-            var query = await _userRepository.GetOneAsync(p => p.UserName.Equals(input.UserName) && p.Id != input.Id);
+            var query = await _userRepository.GetOneAsync(p => p.UserName.Equals(input.UserName) && p.Id != input.Id && p.IsDelete == false);
             if (query != null)
             {
                 result.Msg = "用户名已存在";
                 return result;
             }
 
-            var entity = _userRepository.GetQueryable(p => p.Id == input.Id).AsNoTracking().FirstOrDefault();
+            var entity = _userRepository.GetQueryable(p => p.Id == input.Id && p.IsDelete == false).AsNoTracking().FirstOrDefault();
             if (entity == null)
             {
                 result.Msg = "用户不存在";
@@ -228,7 +249,7 @@ namespace VueAdmin.Api.Controllers
                     result.Msg = "用户名不能修改";
                     return result;
                 }
-            }         
+            }
 
             var model = _mapper.Map<User>(input);
             if (string.IsNullOrWhiteSpace(input.Password))
@@ -244,7 +265,7 @@ namespace VueAdmin.Api.Controllers
             {
                 model.Avatar = entity.Avatar;
             }
-          
+
             model.CreationTime = entity.CreationTime;
             model.UpdateBy = LoginUser.UserName;
             model.UpdateTime = DateTime.Now;
@@ -261,14 +282,50 @@ namespace VueAdmin.Api.Controllers
             var result = new ResultDto<bool>();
 
             var list = await _userRepository.GetListAsync(p => ids.Contains(p.Id));
-            var users = new List<User>();
+            var items = new List<User>();
             foreach (var item in list)
             {
                 item.IsDelete = true;
-                users.Add(item);
+                items.Add(item);
             }
-            var b = await _userRepository.UpdateAsync(users);
+            var b = await _userRepository.UpdateAsync(items);
             result.SetData(b);
+            return result;
+        }
+
+        [HttpPost]
+        [Route("set-role")]
+        public async Task<ResultDto<bool>> AddUserRole([FromBody] UserRoleDto input)
+        {
+            var result = new ResultDto<bool>();
+
+            var roles = string.Join(", ", input.RoleIds);
+
+            var entity = _userRepository.GetQueryable(p => p.Id == input.Id).AsNoTracking().FirstOrDefault();
+            if (entity != null)
+            {
+                entity.Roles = roles;
+                var b = await _userRepository.UpdateAsync(entity);
+                result.SetData(b);
+            }
+
+            return result;
+        }
+
+        [HttpGet]
+        [Route("role-ids")]
+        public async Task<ResultDto<int[]>> GetRoleIds(int userId)
+        {
+            var result = new ResultDto<int[]>();
+            int[] ids = new int[] { };
+
+            var user = await _userRepository.GetOneAsync(p => p.Id == userId && p.IsActive && p.IsDelete == false);
+            if (user.Roles != null)
+            {
+                ids = StringHelper.StrArrToIntArr(user.Roles.Split(','));
+            }
+
+            result.SetData(ids);
             return result;
         }
 

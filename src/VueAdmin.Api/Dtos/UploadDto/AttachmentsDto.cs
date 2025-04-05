@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VueAdmin.Api.Dtos.UploadDto
+namespace VueAdmin.Api.Dtos
 {
     public class AttachmentsDto
     {

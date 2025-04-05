@@ -8,7 +8,7 @@ namespace VueAdmin.Data
     /// 角色
     /// </summary> 
     [Table("role")]
-    public class Role : ExtCreateModel, IActiveModel
+    public class Role : ExtFullModifyModel, IActiveModel, IsDeleteModel
     {
         /// <summary>
         /// 角色ID
@@ -18,21 +18,24 @@ namespace VueAdmin.Data
         /// <summary>
         /// 角色名称
         /// </summary>
-        [StringLength(ModelUnits.Len_50)]
-        public string RoleName { get; set; }
+        [StringLength(ModelUnits.Len_100)]
+        public string Name { get; set; }
         /// <summary>
         /// 描述
         /// </summary>
         [StringLength(ModelUnits.Len_500)]
-        public string Description { get; set; }
-
+        public string Remark { get; set; }
         /// <summary>
         /// 是否启用
         /// </summary>
         public bool IsActive { get; set; }
         /// <summary>
-        /// 角色类型 0-管理员 1-商家
+        /// 角色类型 admin [超级管理员]
         /// </summary>
-        public int RoleType { get; set; }
+        public string Code { get; set; }
+
+        public bool IsSuperAdmin { get; set; }
+
+        public bool IsDelete { get; set; }
     }
 }

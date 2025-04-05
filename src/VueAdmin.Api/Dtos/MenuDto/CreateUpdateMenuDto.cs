@@ -1,24 +1,19 @@
-﻿using VueAdmin.Data.ExtModel;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+using VueAdmin.Data;
 
-namespace VueAdmin.Data
+namespace VueAdmin.Api.Dtos
 {
-    [Table("menu")]
-    public class Menu : ExtFullModifyModel, IsDeleteModel, ISortModel
-    {        
-        [Key]
-        public int Id { get; set; }
+    public class CreateUpdateMenuDto
+    {
+        /// <summary>
+        /// ID
+        /// </summary>
+        public int? Id { get; set; }
+
         /// <summary>
         /// 菜单类型 0-菜单 1-iframe 2-外链 3-按钮
-        /// </summary>      
-        [Comment("菜单类型 0-菜单 1-iframe 2-外链 3-按钮")]
+        /// </summary>            
         public int MenuType { get; set; }
 
         /// <summary>
@@ -27,70 +22,58 @@ namespace VueAdmin.Data
         public int ParentId { get; set; }
         /// <summary>
         /// 菜单名称
-        /// </summary>
-        [StringLength(ModelUnits.Len_100)]
+        /// </summary>      
         public string Title { get; set; }
 
         /// <summary>
         /// 路由名称
-        /// </summary>
-        [StringLength(ModelUnits.Len_100)]
+        /// </summary>     
         public string Name { get; set; }
         /// <summary>
         /// 路径
         /// </summary>
-        [StringLength(ModelUnits.Len_500)]
         public string Path { get; set; }
         /// <summary>
         /// 组件
-        /// </summary>
-        [StringLength(ModelUnits.Len_250)]
+        /// </summary>      
         public string Component { get; set; }
         /// <summary>
         /// 
-        /// </summary>
-        [StringLength(ModelUnits.Len_250)]
+        /// </summary>    
         public string Redirect { get; set; }
         /// <summary>
         /// 图标
-        /// </summary>
-        [StringLength(ModelUnits.Len_50)]
+        /// </summary>    
         public string Icon { get; set; }
 
         /// <summary>
         /// 右侧图标
-        /// </summary>
-        [StringLength(ModelUnits.Len_50)]
+        /// </summary>      
         public string ExtraIcon { get; set; }
         /// <summary>
         /// 进场动画
-        /// </summary>
-        [StringLength(ModelUnits.Len_100)]
+        /// </summary>      
         public string EnterTransition { get; set; }
         /// <summary>
         /// 离场动画
-        /// </summary>
-        [StringLength(ModelUnits.Len_100)]
+        /// </summary>    
         public string LeaveTransition { get; set; }
         /// <summary>
         /// 权限标识
-        /// </summary>
-        [StringLength(ModelUnits.Len_100)]
+        /// </summary>       
         public string Auths { get; set; }
         /// <summary>
         /// 菜单激活    
-        /// </summary>
-        [StringLength(ModelUnits.Len_100)]
+        /// </summary>      
         public string ActivePath { get; set; }
         /// <summary>
         /// 外链地址
-        /// </summary>      
-        [StringLength(ModelUnits.Len_100)]
+        /// </summary>           
         public string FrameSrc { get; set; }
         /// <summary>
         ///  加载动画
         /// </summary>        
-        public bool FrameLoading { get; set; }        
+        public bool FrameLoading { get; set; }
         /// <summary>
         /// 排序
         /// </summary>
@@ -115,10 +98,5 @@ namespace VueAdmin.Data
         /// 
         /// </summary>
         public bool ShowParent { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool IsDelete { get; set; } = false;
-     
     }
 }

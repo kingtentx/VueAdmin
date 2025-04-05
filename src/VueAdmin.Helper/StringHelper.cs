@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -62,7 +63,7 @@ namespace VueAdmin.Helper
         /// </summary>        
         /// <returns>long</returns>  
         public static long GetUnixTimeStamp()
-        {           
+        {
             DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1, 0, 0, 0, 0));
             long t = (DateTime.Now.Ticks - startTime.Ticks) / 10000;   //除10000调整为13位      
             return t;
@@ -348,6 +349,12 @@ namespace VueAdmin.Helper
             //source = RemoveEmoji(source);
             return new Regex(@"\\u([0-9A-F]{4})", RegexOptions.IgnoreCase | RegexOptions.Compiled).Replace(
                          str, x => string.Empty + Convert.ToChar(Convert.ToUInt16(x.Result("$1"), 16)));
+
+        }
+
+        public static int[] StrArrToIntArr(string[] str)
+        {
+            return str.Select(int.Parse).ToArray();
         }
     }
 }

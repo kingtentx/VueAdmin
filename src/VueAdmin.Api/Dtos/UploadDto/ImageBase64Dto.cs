@@ -1,4 +1,4 @@
-﻿namespace VueAdmin.Api.Dtos.UploadDto
+﻿namespace VueAdmin.Api.Dtos
 {
     public class ImageBase64Dto
     {

@@ -64,4 +64,12 @@
         /// </summary>
         File = 1
     }
+
+    public enum MenuType
+    {
+        Menu = 0,
+        Iframe = 1,
+        OutLink = 2,
+        Button = 3
+    }
 }
