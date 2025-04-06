@@ -166,13 +166,24 @@ namespace VueAdmin.Api.Controllers
         {
             var result = new ResultDto<bool>();
 
-            var list = await _menuRepository.GetListAsync(p => ids.Contains(p.Id));
+            //var list = await _menuRepository.GetListAsync(p => ids.Contains(p.Id));
+            var list = await _menuRepository.GetListAsync(p => p.IsDelete == false);
             var items = new List<Menu>();
-            foreach (var item in list)
+            foreach (var id in ids)
             {
-                item.IsDelete = true;
-                items.Add(item);
-            }
+                var query = list.Where(p => p.ParentId == id).ToList();
+                var item = list.FirstOrDefault(p => p.Id == id);
+                if (query.Count > 0)
+                {
+                    result.Msg = $"请先删除{item.Title}的子菜单";
+                    return result;
+                }
+                else
+                {                 
+                    item.IsDelete = true;
+                    items.Add(item);
+                }
+            } 
             var b = await _menuRepository.UpdateAsync(items);
             result.SetData(b);
             return result;

@@ -192,7 +192,7 @@ namespace VueAdmin.Api.Controllers
             //result.SetData(data);
 
             var result = new ResultDto<List<RoleItemDto>>();
-            var list = await _roleRepository.GetListAsync(p => p.IsDelete == false);
+            var list = await _roleRepository.GetListAsync(p =>p.IsActive && p.IsDelete == false);
             var dto = _mapper.Map<List<RoleItemDto>>(list);
             result.SetData(dto);
             return result;

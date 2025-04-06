@@ -1,35 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VueAdmin.Data.ExtModel;
+﻿using System.ComponentModel.DataAnnotations;
+using VueAdmin.Data;
 
-namespace VueAdmin.Data
+namespace VueAdmin.Api.Dtos
 {
-    [Table("department")]
-    public class Department : ExtFullModifyModel, IsDeleteModel, ISortModel
+    public class DepartmentDto
     {
         /// <summary>
         /// 
-        /// </summary>
-        [Key]
+        /// </summary>       
         public int Id { get; set; }
         /// <summary>
         /// 
-        /// </summary>
-        [StringLength(ModelUnits.Len_100)]
+        /// </summary>      
         public string Name { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public int ParentId { get; set; }       
+        public int ParentId { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public bool IsActive { get; set; }
+        public bool Status { get; set; }
         /// <summary>
         /// 类型
         /// </summary>
@@ -41,26 +32,22 @@ namespace VueAdmin.Data
         /// <summary>
         /// 负责人
         /// </summary>
-        [StringLength(ModelUnits.Len_100)]
         public string Principal { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        [StringLength(ModelUnits.Len_50)]
         public string Phone { get; set; }
         /// <summary>
         /// 
-        /// </summary>
-        [StringLength(ModelUnits.Len_250)]
+        /// </summary>      
         public string Email { get; set; }
         /// <summary>
         /// 
-        /// </summary>
-        [StringLength(ModelUnits.Len_500)]
+        /// </summary>      
         public string Remark { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public bool IsDelete { get; set; }       
+        public DateTime CreationTime { get; set; }
     }
 }

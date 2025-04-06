@@ -25,6 +25,7 @@ namespace VueAdmin.Data
         public DbSet<PictureGallery> PictureGallery { get; set; }
         public DbSet<Attachments> Attachments { get; set; }  
         public DbSet<User> WxUser { get; set; }
+        public DbSet<Department> Department { get; set; }
 
         #endregion
 

@@ -34,6 +34,9 @@ namespace VueAdmin.Api.Models.MapperConfig
             CreateMap<Role, RoleDto>().ForMember(d => d.Status, m => m.MapFrom(c => c.IsActive)).ReverseMap();
             CreateMap<Role, RoleItemDto>().ReverseMap();
 
+            CreateMap<Department, CreateUpdateDepartmentDto>().ForMember(d => d.Status, m => m.MapFrom(c => c.IsActive)).ReverseMap();
+            CreateMap<Department, DepartmentDto>().ForMember(d => d.Status, m => m.MapFrom(c => c.IsActive)).ReverseMap();
+
         }
     }
 }

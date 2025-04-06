@@ -34,6 +34,7 @@ namespace VueAdmin.Api.Controllers
         private IMapper _mapper;
         private IRepository<User> _userRepository;
         private IRepository<UserLogin> _logRepository;
+        private IRepository<Role> _roleRepository;
         private JwtConfig _jwtSettings;
 
         public UserController(
@@ -41,7 +42,8 @@ namespace VueAdmin.Api.Controllers
             ICacheService cache,
             IOptions<JwtConfig> jwt,
             IRepository<User> userRepository,
-            IRepository<UserLogin> logRepository
+            IRepository<UserLogin> logRepository,
+            IRepository<Role> roleRepository
             )
         {
             _cache = cache;
@@ -49,6 +51,7 @@ namespace VueAdmin.Api.Controllers
             _userRepository = userRepository;
             _jwtSettings = jwt.Value;
             _logRepository = logRepository;
+            _roleRepository = roleRepository;
         }
 
         /// <summary>
@@ -70,20 +73,30 @@ namespace VueAdmin.Api.Controllers
                     result.Msg = "用户启或密码错误";
                     return result;
                 }
-
+                if (user.Roles.IsNullOrEmpty())
+                {
+                    user.Roles = "0";
+                }
                 var claim = new Claim[]{
                     new Claim(ClaimTypes.Sid,user.Id.ToString()),
                     new Claim(ClaimTypes.Name,user.UserName),
-                    new Claim(ClaimTypes.Role,user.Roles)
+                    new Claim(ClaimTypes.Role, user.Roles)
                 };
 
                 //对称秘钥
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
                 //签名证书(秘钥，加密算法)
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
                 //生成token  [注意]需要nuget添加Microsoft.AspNetCore.Authentication.JwtBearer包，并引用System.IdentityModel.Tokens.Jwt命名空间
                 var token = new JwtSecurityToken(_jwtSettings.Issuer, _jwtSettings.Audience, claim, DateTime.Now, DateTime.Now.AddMinutes(_jwtSettings.Expiration), creds);
+
+                //查询用户角色
+                var roles = new List<string>(); //new List<string> { "admin" };
+                if (user.Roles != "0")
+                {
+                    var roleIds = StringHelper.StrArrToIntArr(user.Roles.Split(','));
+                    roles = await _roleRepository.GetQueryable(p => roleIds.Contains(p.Id) && p.IsDelete == false && p.IsActive == true).Select(p => p.Code).ToListAsync();
+                }
 
                 var info = new UserInfoDto
                 {
@@ -92,7 +105,7 @@ namespace VueAdmin.Api.Controllers
                     Avatar = user.Avatar,
                     AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
                     RefreshToken = "",
-                    Roles = new List<string> { "admin" },
+                    Roles = roles,
                     Permissions = new List<string> { "*:*:*" },
                     Expires = DateTime.Now.AddMinutes(_jwtSettings.Expiration)
                 };
@@ -319,7 +332,7 @@ namespace VueAdmin.Api.Controllers
             var result = new ResultDto<int[]>();
             int[] ids = new int[] { };
 
-            var user = await _userRepository.GetOneAsync(p => p.Id == userId && p.IsActive && p.IsDelete == false);
+            var user = await _userRepository.GetOneAsync(p => p.Id == userId && p.IsDelete == false);
             if (user.Roles != null)
             {
                 ids = StringHelper.StrArrToIntArr(user.Roles.Split(','));
