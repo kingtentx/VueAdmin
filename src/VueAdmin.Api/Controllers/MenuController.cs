@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using VueAdmin.Api.Dtos;
+using VueAdmin.Core.Enums;
 using VueAdmin.Data;
 using VueAdmin.Helper;
 using VueAdmin.Repository;
@@ -76,7 +77,7 @@ namespace VueAdmin.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("get-menus")]
-        public ResultDto<object> GetMenus()
+        public async Task<ResultDto<object>> GetMenus()
         {
             var result = new ResultDto<object>();
 
@@ -91,7 +92,51 @@ namespace VueAdmin.Api.Controllers
             string jsonContent = System.IO.File.ReadAllText(filePath);
             var jsonData = JsonConvert.DeserializeObject<object>(jsonContent);
             result.SetData(jsonData);
+            return result;
 
+            //var result = new ResultDto<List<MenuTreeDto>>();
+
+            //var menus = await _menuRepository.GetListAsync(p => p.IsDelete == false);
+            //var root = menus.Where(p => p.ParentId == 0).OrderBy(p => p.Sort).ToList();
+            //var data = LoadMenusTree(root, menus);
+
+            //result.SetData(data);
+            //return result;
+        }
+
+
+        private List<MenuTreeDto> LoadMenusTree(List<Menu> roots, List<Menu> menus)
+        {
+            var result = new List<MenuTreeDto>();
+            foreach (var root in roots.Where(p=> p.MenuType < (int)MenuType.Button))
+            {
+                var menu = new MenuTreeDto
+                {
+                    //Id = root.Id,
+                    //MenuType = root.MenuType,
+                    Name = root.Name?.Trim(),
+                    Component = root.Component,
+                    Path = root.Path?.Trim(),
+                    Meta = new MetaDto()
+                    {
+                        Title = root.Title?.Trim(),
+                        Icon = root.Icon,
+                        Sort = root.Sort == 0 ? 2 : root.Sort,
+                        //Roles = new List<string>() { "admin", "common" },
+                        Auths = menus.Where(p => p.ParentId == root.Id && p.MenuType == (int)MenuType.Button).Select(p => p.Auths).ToList(),
+                    }
+                };
+                if (menus.Where(_ => _.ParentId == root.Id).Any())
+                {
+                    menu.Children = LoadMenusTree(menus.Where(p => p.ParentId == root.Id).OrderBy(p => p.Sort).ToList(), menus);                  
+                }
+                else
+                {
+                    menu.Children = new List<MenuTreeDto>();
+                }
+
+                result.Add(menu);
+            }
             return result;
         }
 
@@ -122,7 +167,7 @@ namespace VueAdmin.Api.Controllers
                 return result;
             }
 
-            var model = _mapper.Map<Menu>(input);         
+            var model = _mapper.Map<Menu>(input);
             model.CreateBy = LoginUser.UserName;
 
             var entity = await _menuRepository.AddAsync(model);
@@ -147,9 +192,9 @@ namespace VueAdmin.Api.Controllers
             {
                 result.Msg = "数据不存在";
                 return result;
-            }          
+            }
 
-            var model = _mapper.Map<Menu>(input);          
+            var model = _mapper.Map<Menu>(input);
 
             model.CreationTime = entity.CreationTime;
             model.UpdateBy = LoginUser.UserName;
@@ -179,11 +224,11 @@ namespace VueAdmin.Api.Controllers
                     return result;
                 }
                 else
-                {                 
+                {
                     item.IsDelete = true;
                     items.Add(item);
                 }
-            } 
+            }
             var b = await _menuRepository.UpdateAsync(items);
             result.SetData(b);
             return result;
