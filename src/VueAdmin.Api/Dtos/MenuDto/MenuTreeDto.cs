@@ -4,15 +4,7 @@ using System.Xml.Linq;
 namespace VueAdmin.Api.Dtos
 {
     public class MenuTreeDto
-    {
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //public int Id { get; set; }
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //public int MenuType { get; set; }
+    {     
 
         /// <summary>
         /// 

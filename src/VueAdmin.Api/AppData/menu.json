@@ -4,7 +4,7 @@
     "meta": {
       "title": "权限管理",
       "icon": "ep:lollipop",
-      "rank": 10
+      "sort": 10
     },
     "children": [
       {
@@ -52,7 +52,7 @@
     "meta": {
       "icon": "ri:settings-3-line",
       "title": "系统管理",
-      "rank": "system"
+      "sort": "system"
     },
     "children": [
       {

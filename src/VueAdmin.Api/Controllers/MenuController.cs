@@ -71,49 +71,56 @@ namespace VueAdmin.Api.Controllers
         }
 
 
+        ///// <summary>
+        ///// 获取用户信息
+        ///// </summary>       
+        ///// <returns></returns>
+        //[HttpGet]
+        //[Route("get-menus-test")]
+        //public async Task<ResultDto<object>> GetMenusTest()
+        //{
+        //    var result = new ResultDto<object>();
+
+        //    // 读取 JSON 文件的路径
+        //    string filePath = Path.Combine(Directory.GetCurrentDirectory(), "AppData/menu.json");
+        //    // 检查文件是否存在
+        //    if (!System.IO.File.Exists(filePath))
+        //    {
+        //        result.Msg = "JSON 文件未找到。";
+        //        return result;
+        //    }
+        //    string jsonContent = System.IO.File.ReadAllText(filePath);
+        //    var jsonData = JsonConvert.DeserializeObject<object>(jsonContent);
+        //    result.SetData(jsonData);
+        //    return result;
+        //}
+
         /// <summary>
         /// 获取用户信息
         /// </summary>       
         /// <returns></returns>
         [HttpGet]
         [Route("get-menus")]
-        public async Task<ResultDto<object>> GetMenus()
+        public async Task<ResultDto<List<MenuTreeDto>>> GetMenus()
         {
-            var result = new ResultDto<object>();
+            var result = new ResultDto<List<MenuTreeDto>>();
 
-            // 读取 JSON 文件的路径
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "AppData/menu.json");
-            // 检查文件是否存在
-            if (!System.IO.File.Exists(filePath))
-            {
-                result.Msg = "JSON 文件未找到。";
-                return result;
-            }
-            string jsonContent = System.IO.File.ReadAllText(filePath);
-            var jsonData = JsonConvert.DeserializeObject<object>(jsonContent);
-            result.SetData(jsonData);
+            var menus = await _menuRepository.GetListAsync(p => p.ShowLink && p.IsDelete == false);
+            var root = menus.Where(p => p.ParentId == 0).OrderBy(p => p.Sort).ToList();
+            var data = LoadMenusTree(root, menus);
+
+            result.SetData(data);
             return result;
-
-            //var result = new ResultDto<List<MenuTreeDto>>();
-
-            //var menus = await _menuRepository.GetListAsync(p => p.IsDelete == false);
-            //var root = menus.Where(p => p.ParentId == 0).OrderBy(p => p.Sort).ToList();
-            //var data = LoadMenusTree(root, menus);
-
-            //result.SetData(data);
-            //return result;
         }
 
 
         private List<MenuTreeDto> LoadMenusTree(List<Menu> roots, List<Menu> menus)
         {
             var result = new List<MenuTreeDto>();
-            foreach (var root in roots.Where(p=> p.MenuType < (int)MenuType.Button))
+            foreach (var root in roots.Where(p => p.MenuType < (int)MenuType.Button))
             {
                 var menu = new MenuTreeDto
                 {
-                    //Id = root.Id,
-                    //MenuType = root.MenuType,
                     Name = root.Name?.Trim(),
                     Component = root.Component,
                     Path = root.Path?.Trim(),
@@ -126,9 +133,10 @@ namespace VueAdmin.Api.Controllers
                         Auths = menus.Where(p => p.ParentId == root.Id && p.MenuType == (int)MenuType.Button).Select(p => p.Auths).ToList(),
                     }
                 };
+
                 if (menus.Where(_ => _.ParentId == root.Id).Any())
                 {
-                    menu.Children = LoadMenusTree(menus.Where(p => p.ParentId == root.Id).OrderBy(p => p.Sort).ToList(), menus);                  
+                    menu.Children = LoadMenusTree(menus.Where(p => p.ParentId == root.Id).OrderBy(p => p.Sort).ToList(), menus);
                 }
                 else
                 {
@@ -149,7 +157,7 @@ namespace VueAdmin.Api.Controllers
         public async Task<ResultDto<List<MenuDto>>> GetMenuList()
         {
             var result = new ResultDto<List<MenuDto>>();
-            var list = await _menuRepository.GetListAsync(p => p.IsDelete == false);
+            var list = await _menuRepository.GetListAsync(p => p.IsDelete == false, p => p.Sort, isAsc: true);
             var data = _mapper.Map<List<MenuDto>>(list);
             result.SetData(data);
             return result;

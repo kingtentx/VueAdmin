@@ -73,6 +73,11 @@ namespace VueAdmin.Api.Controllers
                     result.Msg = "用户启或密码错误";
                     return result;
                 }
+                if (!user.IsActive)
+                {
+                    result.Msg = "当前用户已禁用";
+                    return result;
+                }
                 if (user.Roles.IsNullOrEmpty())
                 {
                     user.Roles = "0";
@@ -263,6 +268,16 @@ namespace VueAdmin.Api.Controllers
                     return result;
                 }
             }
+
+            #region 判断已登录用户禁止修改当前登录账号为禁用状态
+
+            if (LoginUser.UserId == input.Id && !input.Status)
+            {
+                result.Msg = "用户禁止修改当前登录账号为禁用状态";
+                return result;
+            }
+
+            #endregion
 
             var model = _mapper.Map<User>(input);
             if (string.IsNullOrWhiteSpace(input.Password))
