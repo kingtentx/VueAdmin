@@ -51,6 +51,10 @@ namespace VueAdmin.Api.Dtos
         /// 0-男 1-女
         /// </summary>
         public int? Sex { get; set; }
-       
+        /// <summary>
+        /// 
+        /// </summary>
+        public int DepartmentId { get; set; }
+
     }
 }

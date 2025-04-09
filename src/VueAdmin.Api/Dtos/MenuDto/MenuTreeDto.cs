@@ -45,10 +45,12 @@ namespace VueAdmin.Api.Dtos
         /// 
         /// </summary>
         public int Sort { get; set; }
+
         ///// <summary>
         ///// 
         ///// </summary>      
         //public List<string> Roles { get; set; }
+
         /// <summary>
         /// 
         /// </summary>          

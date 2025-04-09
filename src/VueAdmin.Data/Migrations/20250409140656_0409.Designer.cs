@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VueAdmin.Data;
 
@@ -10,9 +11,11 @@ using VueAdmin.Data;
 namespace VueAdmin.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250409140656_0409")]
+    partial class _0409
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,10 +98,6 @@ namespace VueAdmin.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("CascadeId")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
                     b.Property<string>("CreateBy")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
@@ -114,9 +113,6 @@ namespace VueAdmin.Data.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("Leaf")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")

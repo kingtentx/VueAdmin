@@ -35,6 +35,15 @@ namespace VueAdmin.Data
         /// </summary>
         public int Type { get; set; }
         /// <summary>
+        /// 级联层级
+        /// </summary>
+        [StringLength(ModelUnits.Len_500)]
+        public string CascadeId { get; set; }
+        /// <summary>
+        /// 是否子集
+        /// </summary>
+        public bool Leaf { get; set; }
+        /// <summary>
         /// 
         /// </summary>
         public int Sort { get; set; }

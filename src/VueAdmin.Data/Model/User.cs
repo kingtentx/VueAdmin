@@ -57,7 +57,10 @@ namespace VueAdmin.Data
         /// </summary>       
         [StringLength(ModelUnits.Len_500)]
         public string Roles { get; set; }
-
+        /// <summary>
+        /// 部门ID
+        /// </summary>   
+        public int DepartmentId { get; set; }
         /// <summary>
         /// 是否超级管理员
         /// </summary>

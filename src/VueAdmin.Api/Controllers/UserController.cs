@@ -35,6 +35,7 @@ namespace VueAdmin.Api.Controllers
         private IRepository<User> _userRepository;
         private IRepository<UserLogin> _logRepository;
         private IRepository<Role> _roleRepository;
+        private IRepository<Department> _deptRepository;
         private JwtConfig _jwtSettings;
 
         public UserController(
@@ -43,7 +44,8 @@ namespace VueAdmin.Api.Controllers
             IOptions<JwtConfig> jwt,
             IRepository<User> userRepository,
             IRepository<UserLogin> logRepository,
-            IRepository<Role> roleRepository
+            IRepository<Role> roleRepository,
+            IRepository<Department> deptRepository
             )
         {
             _cache = cache;
@@ -52,6 +54,7 @@ namespace VueAdmin.Api.Controllers
             _jwtSettings = jwt.Value;
             _logRepository = logRepository;
             _roleRepository = roleRepository;
+            _deptRepository = deptRepository;
         }
 
         /// <summary>
@@ -202,17 +205,33 @@ namespace VueAdmin.Api.Controllers
             {
                 where = where.And(p => p.Telphone.Equals(input.Phone));
             }
-            if (input.Status != null)
+            if (input.Status.HasValue)
             {
                 where = where.And(p => p.IsActive == input.Status);
             }
+            if (input.DeptId.HasValue)
+            {
+                where = where.And(p => p.DepartmentId == input.DeptId);
+            }
 
             var items = await _userRepository.GetListAsync(where, p => p.Id, input.CurrentPage, input.PageSize);
+            var depts = await _deptRepository.GetListAsync(p => items.List.Distinct().Select(p => p.DepartmentId).Contains(p.Id) && p.IsDelete == false);
 
+            var dtos = new List<UserDto>();
+            foreach (var item in items.List)
+            {
+                var dto = _mapper.Map<UserDto>(item);
+                dto.Dept = new DeptDto()
+                {
+                    Id = item.DepartmentId,
+                    Name = depts.Find(p => p.Id == item.DepartmentId)?.Name
+                };
+                dtos.Add(dto);
+            }
             var data = new ItemList<UserDto>
             {
                 Total = items.Count,
-                List = _mapper.Map<List<UserDto>>(items.List),
+                List = dtos,
                 CurrentPage = input.CurrentPage,
                 PageSize = input.PageSize
             };

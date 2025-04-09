@@ -88,11 +88,40 @@ namespace VueAdmin.Api.Controllers
             //    return result;
             //}
 
-            var model = _mapper.Map<Department>(input);
-            model.CreateBy = LoginUser.UserName;
+            //var model = _mapper.Map<Department>(input);
+            //model.CreateBy = LoginUser.UserName;
 
-            var entity = await _deptRepository.AddAsync(model);
-            result.SetData(entity.Id > 0);
+            //var entity = await _deptRepository.AddAsync(model);
+            //result.SetData(entity.Id > 0);
+            //return result;
+
+            try
+            {
+                // 生成CascadeId
+                var cascadeId = await GenerateCascadeIdAsync(input.ParentId);
+
+                var model = _mapper.Map<Department>(input);
+                model.CascadeId = cascadeId;
+                model.Leaf = true; // 新增分类默认无子节点
+                await _deptRepository.AddAsync(model);
+
+                // 更新父级的Leaf状态
+                if (input.ParentId != 0)
+                {
+                    var parent = await _deptRepository.GetOneAsync(c => c.Id == input.ParentId);
+                    if (parent != null && parent.Leaf)
+                    {
+                        parent.Leaf = false;
+                        await _deptRepository.UpdateAsync(parent);
+                    }
+                }
+
+                result.SetData(true);
+            }
+            catch (Exception ex)
+            {
+                result.Msg = ex.Message;
+            }
             return result;
         }
 
@@ -108,23 +137,134 @@ namespace VueAdmin.Api.Controllers
             //    return result;
             //}
 
-            var entity = _deptRepository.GetQueryable(p => p.Id == input.Id && p.IsDelete == false).AsNoTracking().FirstOrDefault();
-            if (entity == null)
+            //var entity = _deptRepository.GetQueryable(p => p.Id == input.Id && p.IsDelete == false).AsNoTracking().FirstOrDefault();
+            //if (entity == null)
+            //{
+            //    result.Msg = "数据不存在";
+            //    return result;
+            //}
+
+            //var model = _mapper.Map<Department>(input);
+
+            //model.CreationTime = entity.CreationTime;
+            //model.UpdateBy = LoginUser.UserName;
+            //model.UpdateTime = DateTime.Now;
+
+            //var res = await _deptRepository.UpdateAsync(model);
+            //result.SetData(res);
+            //return result;
+
+
+            if (input == null || input.Id != input.Id)
             {
-                result.Msg = "数据不存在";
+                result.Msg = "请求数据无效";
                 return result;
             }
 
-            var model = _mapper.Map<Department>(input);
+            try
+            {
+                var existingCategory = await _deptRepository.GetOneAsync(c => c.Id == input.Id && c.IsDelete == false);
+                if (existingCategory == null)
+                {
+                    result.Msg = "数据不存在";
+                    return result;
+                }
 
-            model.CreationTime = entity.CreationTime;
-            model.UpdateBy = LoginUser.UserName;
-            model.UpdateTime = DateTime.Now;
+                var originalPid = existingCategory.ParentId;
+                var pidChanged = existingCategory.ParentId != input.ParentId;
 
-            var res = await _deptRepository.UpdateAsync(model);
-            result.SetData(res);
+                // 更新父级关系
+                if (pidChanged)
+                {
+                    existingCategory.ParentId = input.ParentId;
+                    // 生成新CascadeId
+                    var newCascadeId = await GenerateCascadeIdAsync(input.ParentId);
+                    await UpdateCategoryAndChildrenAsync(existingCategory, newCascadeId);
+                }
+
+                // 更新其他属性
+                existingCategory.Name = input.Name;               
+                existingCategory.Sort = input.Sort;
+                existingCategory.IsActive = input.Status;
+
+                // 自动更新Leaf状态
+                var hasChildren = await _deptRepository.GetOneAsync(c => c.ParentId == existingCategory.Id);
+                existingCategory.Leaf = hasChildren != null;
+
+                await _deptRepository.UpdateAsync(existingCategory);
+
+                // 处理父级Leaf状态
+                if (pidChanged)
+                {
+                    // 更新原父级
+                    if (originalPid != 0)
+                    {
+                        var originalParent = await _deptRepository.GetOneAsync(c => c.Id == originalPid);
+                        if (originalParent != null)
+                        {
+                            var hasOriginalChildren = await _deptRepository.GetOneAsync(c => c.ParentId == originalPid);
+                            originalParent.Leaf = hasOriginalChildren != null;
+                            await _deptRepository.UpdateAsync(originalParent);
+                        }
+                    }
+
+                    // 更新新父级
+                    if (input.ParentId != 0)
+                    {
+                        var newParent = await _deptRepository.GetOneAsync(c => c.Id == input.ParentId);
+                        if (newParent != null && newParent.Leaf)
+                        {
+                            newParent.Leaf = false;
+                            await _deptRepository.UpdateAsync(newParent);
+                        }
+                    }
+                }
+
+                result.SetData(true);
+            }
+            catch (Exception ex)
+            {
+                result.Msg = ex.Message;
+            }
             return result;
         }
+
+        private async Task<string> GenerateCascadeIdAsync(int pid)
+        {
+            if (pid == 0)
+            {
+                var categories = await _deptRepository.GetListAsync(p => p.ParentId == 0);
+                var maxId = categories.Max(c => c.CascadeId);
+                return string.IsNullOrEmpty(maxId) ? "001" : (int.Parse(maxId) + 1).ToString("D3");
+            }
+
+            var parent = await _deptRepository.GetOneAsync(c => c.Id == pid);
+            if (parent == null) throw new Exception("Parent category not found");
+
+            var siblings = await _deptRepository.GetListAsync(c => c.ParentId == pid);
+            var lastSibling = siblings.OrderByDescending(c => c.CascadeId).FirstOrDefault();
+
+            var newSegment = lastSibling == null
+                ? "001"
+                : (int.Parse(lastSibling.CascadeId.Split('.').Last()) + 1).ToString("D3");
+
+            return $"{parent.CascadeId}.{newSegment}";
+        }
+
+        private async Task UpdateCategoryAndChildrenAsync(Department category, string newCascadeId)
+        {
+            var originalCascadeId = category.CascadeId;
+            category.CascadeId = newCascadeId;
+            await _deptRepository.UpdateAsync(category);
+
+            var children = await _deptRepository.GetListAsync(c => c.ParentId == category.Id);
+            foreach (var child in children)
+            {
+                var childNewCascadeId = child.CascadeId.Replace(originalCascadeId, newCascadeId);
+                await UpdateCategoryAndChildrenAsync(child, childNewCascadeId);
+            }
+        }
+
 
         [HttpPost]
         [Route("delete")]

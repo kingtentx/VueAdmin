@@ -41,6 +41,10 @@ namespace VueAdmin.Api.Dtos
         /// <summary>
         /// 
         /// </summary>
+        public int DepartmentId { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public int? Sex { get; set; }
         /// <summary>
         /// 是否启用
@@ -51,12 +55,12 @@ namespace VueAdmin.Api.Dtos
         /// </summary>
         public DateTime CreationTime { get; set; }
 
-        public List<DeptDto> Dept { get; set; } = new List<DeptDto>() { new DeptDto() };
+        public DeptDto Dept { get; set; } 
     }
 
     public class DeptDto
     {
-        public int Id { get; set; } = 0;
-        public string Name { get; set; } = "-";
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }
