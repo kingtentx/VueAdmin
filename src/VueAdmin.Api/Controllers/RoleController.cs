@@ -192,7 +192,7 @@ namespace VueAdmin.Api.Controllers
             //result.SetData(data);
 
             var result = new ResultDto<List<RoleItemDto>>();
-            var list = await _roleRepository.GetListAsync(p =>p.IsActive && p.IsDelete == false);
+            var list = await _roleRepository.GetListAsync(p => p.IsActive && p.IsDelete == false);
             var dto = _mapper.Map<List<RoleItemDto>>(list);
             result.SetData(dto);
             return result;
@@ -218,7 +218,7 @@ namespace VueAdmin.Api.Controllers
 
             var result = new ResultDto<List<MenuItemDto>>();
 
-            var list = await _menuRepository.GetListAsync(p => p.IsDelete == false);
+            var list = await _menuRepository.GetListAsync(p => p.IsDelete == false, p => p.Sort, isAsc: true);
             var dto = _mapper.Map<List<MenuItemDto>>(list);
             result.SetData(dto);
 
@@ -273,7 +273,7 @@ namespace VueAdmin.Api.Controllers
         public async Task<ResultDto<bool>> UpdateRoleMenu([FromBody] RoleMenuInputDto input)
         {
             var result = new ResultDto<bool>();
-           
+
             //旧的所有角色菜单
             var oldArray = _roleMenuRepository.GetList(p => p.RoleId == input.RoleId).Select(p => p.MenuId).ToArray();
             //当前角色菜单

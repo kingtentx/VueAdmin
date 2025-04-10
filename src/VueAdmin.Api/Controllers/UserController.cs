@@ -211,7 +211,9 @@ namespace VueAdmin.Api.Controllers
             }
             if (input.DeptId.HasValue)
             {
-                where = where.And(p => p.DepartmentId == input.DeptId);
+                var dept = await _deptRepository.GetOneAsync(p => p.Id == input.DeptId && p.IsDelete == false);
+                var deptIds = await _deptRepository.GetQueryable(p => p.CascadeId.StartsWith(dept.CascadeId) && p.IsDelete == false).Select(p => p.Id).ToListAsync();
+                where = where.And(p => deptIds.Contains(p.DepartmentId));
             }
 
             var items = await _userRepository.GetListAsync(where, p => p.Id, input.CurrentPage, input.PageSize);

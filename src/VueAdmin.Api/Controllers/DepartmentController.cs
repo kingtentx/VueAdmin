@@ -69,7 +69,7 @@ namespace VueAdmin.Api.Controllers
             //return result;
 
             var result = new ResultDto<List<DepartmentDto>>();
-            var list = await _deptRepository.GetListAsync(p => p.IsDelete == false);
+            var list = await _deptRepository.GetListAsync(p => p.IsDelete == false, p => p.Sort, isAsc: true);
             var data = _mapper.Map<List<DepartmentDto>>(list);
             result.SetData(data);
             return result;
@@ -183,7 +183,7 @@ namespace VueAdmin.Api.Controllers
                 }
 
                 // 更新其他属性
-                existingCategory.Name = input.Name;               
+                existingCategory.Name = input.Name;
                 existingCategory.Sort = input.Sort;
                 existingCategory.IsActive = input.Status;
 
