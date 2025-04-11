@@ -33,8 +33,7 @@ namespace VueAdmin.Data
         /// 角色类型 admin [超级管理员]
         /// </summary>
         public string Code { get; set; }
-
-        public bool IsSuperAdmin { get; set; }
+     
 
         public bool IsDelete { get; set; }
     }

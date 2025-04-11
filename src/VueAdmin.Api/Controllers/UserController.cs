@@ -12,7 +12,6 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using VueAdmin.Api.Common;
 using VueAdmin.Api.Dtos;
 using VueAdmin.Data;
 using VueAdmin.Helper;
@@ -88,7 +87,8 @@ namespace VueAdmin.Api.Controllers
                 var claim = new Claim[]{
                     new Claim(ClaimTypes.Sid,user.Id.ToString()),
                     new Claim(ClaimTypes.Name,user.UserName),
-                    new Claim(ClaimTypes.Role, user.Roles)
+                    new Claim(ClaimTypes.Role, user.Roles),
+                    new Claim(ClaimTypes.System , user.IsAdmin.ToString())
                 };
 
                 //对称秘钥
@@ -114,7 +114,7 @@ namespace VueAdmin.Api.Controllers
                     AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
                     RefreshToken = "",
                     Roles = roles,
-                    Permissions = new List<string> { "*:*:*" },
+                    Permissions = new List<string>(), // user.IsAdmin ? new List<string> { "*:*:*" } : new List<string>(),
                     Expires = DateTime.Now.AddMinutes(_jwtSettings.Expiration)
                 };
                 try
@@ -315,6 +315,7 @@ namespace VueAdmin.Api.Controllers
                 model.Avatar = entity.Avatar;
             }
 
+            model.IsAdmin = entity.IsAdmin;
             model.CreationTime = entity.CreationTime;
             model.UpdateBy = LoginUser.UserName;
             model.UpdateTime = DateTime.Now;

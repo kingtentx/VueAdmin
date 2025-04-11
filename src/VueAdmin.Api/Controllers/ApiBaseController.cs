@@ -23,7 +23,8 @@ namespace VueAdmin.Api.Controllers
                     {
                         UserId = Convert.ToInt32(identity.FindFirst(ClaimTypes.Sid)?.Value),
                         UserName = identity.FindFirst(ClaimTypes.Name)?.Value,
-                        Role = !string.IsNullOrWhiteSpace(identity.FindFirst(ClaimTypes.Role)?.Value) ? StringHelper.StrArrToIntArr(identity.FindFirst(ClaimTypes.Role)?.Value.ToString().Split(',')) : new int[] { 0 }
+                        Role = !string.IsNullOrWhiteSpace(identity.FindFirst(ClaimTypes.Role)?.Value) ? StringHelper.StrArrToIntArr(identity.FindFirst(ClaimTypes.Role)?.Value.ToString().Split(',')) : new int[] { 0 },
+                        IsAdmin= Convert.ToBoolean(identity.FindFirst(ClaimTypes.System)?.Value)
                     };
                     return user;
                 }

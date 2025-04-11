@@ -13,7 +13,7 @@ namespace VueAdmin.Data
 
         public void Create(AppDbContext context)
         {
-            InitUser(context);          
+            InitUser(context);
         }
 
         private void InitUser(AppDbContext context)
@@ -27,14 +27,29 @@ namespace VueAdmin.Data
                 {
                     UserName = SuperAdmin,
                     NickName = "超级管理员",
-                    Password = ToMD5("admin123"),                   
+                    Password = ToMD5("admin123"),
                     IsAdmin = true,
-                    IsActive = true
+                    IsActive = true,
+                    Roles = "1"
                 };
                 context.User.Add(admin);
                 context.SaveChanges();
+
+                var system_role = context.User.FirstOrDefault(p => p.Id == 1);
+                if (system_role == null)
+                {
+                    //添加角色
+                    var role = new Role
+                    {
+                        Code = SuperAdmin,
+                        Name = "超级管理员",
+                        IsActive = true
+                    };
+                    context.Role.Add(role);
+                    context.SaveChanges();
+                }
             }
-        }      
+        }
 
         private string ToMD5(string str)
         {

@@ -41,6 +41,10 @@ namespace VueAdmin.Api.Dtos
         /// 
         /// </summary>
         public int[] Role { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsAdmin { get; set; } = false;
 
     }
 }

@@ -225,6 +225,11 @@ namespace VueAdmin.Api.Controllers
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("role-menu-ids/{id}")]
         public async Task<ResultDto<List<int>>> GetRoleMenuIds(int id)
@@ -249,7 +254,7 @@ namespace VueAdmin.Api.Controllers
             var result = new ResultDto<List<int>>();
             var ids = new List<int>();
             var role = await _roleRepository.GetOneAsync(p => p.Id == id && p.IsDelete == false);
-            if (role.IsSuperAdmin)
+            if (role.Id == 1)
             {
                 //超级管理员显示所有菜单
                 ids = (await _menuRepository.GetListAsync(p => p.IsDelete == false)).Select(p => p.Id).ToList();
@@ -266,7 +271,7 @@ namespace VueAdmin.Api.Controllers
         /// <summary>
         /// 保存角色授权的菜单
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="input"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("set-role-menu")]

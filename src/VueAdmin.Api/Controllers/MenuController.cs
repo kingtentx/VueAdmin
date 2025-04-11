@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using System.Collections.Generic;
+using System.Reflection;
 using VueAdmin.Api.Dtos;
+using VueAdmin.Api.Permissions;
 using VueAdmin.Core.Enums;
 using VueAdmin.Data;
 using VueAdmin.Helper;
@@ -19,13 +22,16 @@ namespace VueAdmin.Api.Controllers
     {
         private IMapper _mapper;
         private IRepository<Menu> _menuRepository;
+        private IRepository<RoleMenu> _rolemenuRepository;
         public MenuController(
             IMapper mapper,
-            IRepository<Menu> menuRepository
+            IRepository<Menu> menuRepository,
+            IRepository<RoleMenu> rolemenuRepository
             )
         {
             _mapper = mapper;
             _menuRepository = menuRepository;
+            _rolemenuRepository = rolemenuRepository;
         }
 
         [HttpGet]
@@ -104,12 +110,22 @@ namespace VueAdmin.Api.Controllers
         public async Task<ResultDto<List<MenuTreeDto>>> GetMenus()
         {
             var result = new ResultDto<List<MenuTreeDto>>();
+            var menus = new List<Menu>();
 
-            var menus = await _menuRepository.GetListAsync(p => p.ShowLink && p.IsDelete == false);
+            if (LoginUser.IsAdmin)
+            {
+                menus = await _menuRepository.GetListAsync(p => p.ShowLink && p.IsDelete == false);
+            }
+            else
+            {
+                var menuIds = await _rolemenuRepository.GetQueryable(p => LoginUser.Role.Contains(p.RoleId)).Select(p => p.MenuId).ToListAsync();
+                menus = await _menuRepository.GetListAsync(p => menuIds.Contains(p.Id) && p.ShowLink && p.IsDelete == false);
+            }
+
             var root = menus.Where(p => p.ParentId == 0).OrderBy(p => p.Sort).ToList();
             var data = LoadMenusTree(root, menus);
-
             result.SetData(data);
+
             return result;
         }
 
@@ -168,14 +184,14 @@ namespace VueAdmin.Api.Controllers
         public async Task<ResultDto<bool>> Create([FromBody] CreateUpdateMenuDto input)
         {
             var result = new ResultDto<bool>();
-            var query = await _menuRepository.GetOneAsync(p => p.Title.Equals(input.Title) && p.IsDelete == false);
-            if (query != null)
-            {
-                result.Msg = "菜单已存在";
-                return result;
-            }
-
-            var model = _mapper.Map<Menu>(input);
+            //var query = await _menuRepository.GetOneAsync(p => p.Title.Equals(input.Title) && p.IsDelete == false);
+            //if (query != null)
+            //{
+            //    result.Msg = "菜单已存在";
+            //    return result;
+            //}
+            
+            var model = _mapper.Map<Menu>(input);           
             model.CreateBy = LoginUser.UserName;
 
             var entity = await _menuRepository.AddAsync(model);
@@ -188,12 +204,13 @@ namespace VueAdmin.Api.Controllers
         public async Task<ResultDto<bool>> Update([FromBody] CreateUpdateMenuDto input)
         {
             var result = new ResultDto<bool>();
-            var query = await _menuRepository.GetOneAsync(p => p.Name.Equals(input.Name) && p.Id != input.Id && p.IsDelete == false);
-            if (query != null)
-            {
-                result.Msg = "Name已存在";
-                return result;
-            }
+
+            //var query = await _menuRepository.GetOneAsync(p => p.Name.Equals(input.Name) && p.Id != input.Id && p.IsDelete == false);
+            //if (query != null)
+            //{
+            //    result.Msg = "Name已存在";
+            //    return result;
+            //}
 
             var entity = _menuRepository.GetQueryable(p => p.Id == input.Id && p.IsDelete == false).AsNoTracking().FirstOrDefault();
             if (entity == null)
@@ -213,13 +230,17 @@ namespace VueAdmin.Api.Controllers
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("delete")]
         public async Task<ResultDto<bool>> Delete(int[] ids)
         {
             var result = new ResultDto<bool>();
-
-            //var list = await _menuRepository.GetListAsync(p => ids.Contains(p.Id));
+          
             var list = await _menuRepository.GetListAsync(p => p.IsDelete == false);
             var items = new List<Menu>();
             foreach (var id in ids)
@@ -239,6 +260,38 @@ namespace VueAdmin.Api.Controllers
             }
             var b = await _menuRepository.UpdateAsync(items);
             result.SetData(b);
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("btn-auths")]     
+        public async Task<ResultDto<List<string>>> GetPermissionsCode()
+        {
+            var result = new ResultDto<List<string>>();
+
+            var permissions = new List<string>();
+            Type permissionsCodeType = typeof(PermissionsCode);
+
+            foreach (Type nestedType in permissionsCodeType.GetNestedTypes(BindingFlags.Public | BindingFlags.Static))
+            {
+                foreach (FieldInfo field in nestedType.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
+                {
+                    // 新增过滤条件：排除名为 "Default" 的字段
+                    if (field.Name != "Default" &&
+                        field.FieldType == typeof(string) &&
+                        field.IsLiteral)
+                    {
+                        string value = (string)field.GetValue(null);
+                        permissions.Add(value);
+                    }
+                }
+            }
+
+            result.SetData(permissions);
             return result;
         }
 
