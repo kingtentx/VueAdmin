@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VueAdmin.Api.Dtos;
+using VueAdmin.Api.Permissions;
 using VueAdmin.Data;
 using VueAdmin.Helper;
 using VueAdmin.Repository;
@@ -96,6 +97,7 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("add")]
+        [PermissionFilter(AuthorizeCode.Role.Add)]
         public async Task<ResultDto<bool>> Create([FromBody] CreateUpdateRoleDto input)
         {
             var result = new ResultDto<bool>();
@@ -116,6 +118,7 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("edit")]
+        [PermissionFilter(AuthorizeCode.Role.Edit)]
         public async Task<ResultDto<bool>> Update([FromBody] CreateUpdateRoleDto input)
         {
             var result = new ResultDto<bool>();
@@ -154,6 +157,7 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("delete")]
+        [PermissionFilter(AuthorizeCode.Role.Delete)]
         public async Task<ResultDto<bool>> Delete(int[] ids)
         {
             var result = new ResultDto<bool>();
@@ -275,6 +279,7 @@ namespace VueAdmin.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("set-role-menu")]
+        [PermissionFilter(AuthorizeCode.Role.Authorize)]
         public async Task<ResultDto<bool>> UpdateRoleMenu([FromBody] RoleMenuInputDto input)
         {
             var result = new ResultDto<bool>();

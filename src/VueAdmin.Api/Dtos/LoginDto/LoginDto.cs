@@ -40,7 +40,7 @@ namespace VueAdmin.Api.Dtos
         /// <summary>
         /// 
         /// </summary>
-        public int[] Role { get; set; }
+        public int[] Roles { get; set; }
         /// <summary>
         /// 
         /// </summary>

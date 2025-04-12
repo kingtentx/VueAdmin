@@ -21,74 +21,31 @@ namespace VueAdmin.Api.Controllers
     public class MenuController : ApiBaseController
     {
         private IMapper _mapper;
+        private IPermissionService _permissionService;
         private IRepository<Menu> _menuRepository;
         private IRepository<RoleMenu> _rolemenuRepository;
+
         public MenuController(
             IMapper mapper,
+             IPermissionService permissionService,
             IRepository<Menu> menuRepository,
             IRepository<RoleMenu> rolemenuRepository
-            )
+           )
         {
             _mapper = mapper;
             _menuRepository = menuRepository;
             _rolemenuRepository = rolemenuRepository;
+            _permissionService = permissionService;
         }
 
-        [HttpGet]
-        [Route("init-menu")]
-        [AllowAnonymous]
-        public ResultDto<bool> InitMenu()
-        {
-            var result = new ResultDto<bool>();
-            // 读取 JSON 文件的路径
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "AppData/menu_list.json");
-
-            // 检查文件是否存在
-            if (!System.IO.File.Exists(filePath))
-            {
-                result.Msg = "JSON 文件未找到。";
-                return result;
-            }
-            string jsonContent = System.IO.File.ReadAllText(filePath);
-
-            var list = JsonConvert.DeserializeObject<List<Menu>>(jsonContent);
-            //_menuRepository.Add(list);
-            //var pList = jsonData.Where(p => p.ParentId == 0).ToList();
-            //var list = new List<Menu>();
-            //foreach (var p in pList)
-            //{              
-            //    var entity = _menuRepository.Add(p);
-            //    if (entity.Mid > 0)
-            //    {
-            //        var sonList = jsonData.Where(a => a.ParentId == p.Id).ToList();
-            //        if (sonList.Any())
-            //        {
-            //            foreach (var son in sonList)
-            //            {                           
-            //                //son.ParentId = entity.Id;                           
-            //                list.Add(son);
-            //            }
-            //            _menuRepository.Add(list);
-            //        }
-            //    }
-            //}
-            result.Ok();
-            return result;
-        }
-
-
-        ///// <summary>
-        ///// 获取用户信息
-        ///// </summary>       
-        ///// <returns></returns>
         //[HttpGet]
-        //[Route("get-menus-test")]
-        //public async Task<ResultDto<object>> GetMenusTest()
+        //[Route("init-menu")]      
+        //public ResultDto<bool> InitMenu()
         //{
-        //    var result = new ResultDto<object>();
-
+        //    var result = new ResultDto<bool>();
         //    // 读取 JSON 文件的路径
-        //    string filePath = Path.Combine(Directory.GetCurrentDirectory(), "AppData/menu.json");
+        //    string filePath = Path.Combine(Directory.GetCurrentDirectory(), "AppData/menu_list.json");
+
         //    // 检查文件是否存在
         //    if (!System.IO.File.Exists(filePath))
         //    {
@@ -96,10 +53,12 @@ namespace VueAdmin.Api.Controllers
         //        return result;
         //    }
         //    string jsonContent = System.IO.File.ReadAllText(filePath);
-        //    var jsonData = JsonConvert.DeserializeObject<object>(jsonContent);
-        //    result.SetData(jsonData);
+
+        //    var list = JsonConvert.DeserializeObject<List<Menu>>(jsonContent);           
+        //    result.Ok();
         //    return result;
         //}
+
 
         /// <summary>
         /// 获取用户信息
@@ -118,7 +77,7 @@ namespace VueAdmin.Api.Controllers
             }
             else
             {
-                var menuIds = await _rolemenuRepository.GetQueryable(p => LoginUser.Role.Contains(p.RoleId)).Select(p => p.MenuId).ToListAsync();
+                var menuIds = await _rolemenuRepository.GetQueryable(p => LoginUser.Roles.Contains(p.RoleId)).Select(p => p.MenuId).ToListAsync();
                 menus = await _menuRepository.GetListAsync(p => menuIds.Contains(p.Id) && p.ShowLink && p.IsDelete == false);
             }
 
@@ -129,12 +88,11 @@ namespace VueAdmin.Api.Controllers
             return result;
         }
 
-
         private List<MenuTreeDto> LoadMenusTree(List<Menu> roots, List<Menu> menus)
         {
             var result = new List<MenuTreeDto>();
             foreach (var root in roots.Where(p => p.MenuType < (int)MenuType.Button))
-            {               
+            {
                 var menu = new MenuTreeDto
                 {
                     Name = root.Name?.Trim(),
@@ -181,6 +139,7 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("add")]
+        [PermissionFilter(AuthorizeCode.Menu.Add)]
         public async Task<ResultDto<bool>> Create([FromBody] CreateUpdateMenuDto input)
         {
             var result = new ResultDto<bool>();
@@ -190,8 +149,8 @@ namespace VueAdmin.Api.Controllers
             //    result.Msg = "菜单已存在";
             //    return result;
             //}
-            
-            var model = _mapper.Map<Menu>(input);           
+
+            var model = _mapper.Map<Menu>(input);
             model.CreateBy = LoginUser.UserName;
 
             var entity = await _menuRepository.AddAsync(model);
@@ -201,6 +160,7 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("edit")]
+        [PermissionFilter(AuthorizeCode.Menu.Edit)]
         public async Task<ResultDto<bool>> Update([FromBody] CreateUpdateMenuDto input)
         {
             var result = new ResultDto<bool>();
@@ -237,10 +197,11 @@ namespace VueAdmin.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("delete")]
+        [PermissionFilter(AuthorizeCode.Menu.Delete)]
         public async Task<ResultDto<bool>> Delete(int[] ids)
         {
             var result = new ResultDto<bool>();
-          
+
             var list = await _menuRepository.GetListAsync(p => p.IsDelete == false);
             var items = new List<Menu>();
             foreach (var id in ids)
@@ -264,33 +225,15 @@ namespace VueAdmin.Api.Controllers
         }
 
         /// <summary>
-        /// 
+        /// 获取菜单按钮权限集合
         /// </summary>
         /// <returns></returns>
-        [HttpPost]
-        [Route("btn-auths")]     
-        public async Task<ResultDto<List<string>>> GetPermissionsCode()
+        [HttpGet]
+        [Route("btn-auths")]
+        public ResultDto<List<string>> GetPermissionsCode()
         {
             var result = new ResultDto<List<string>>();
-
-            var permissions = new List<string>();
-            Type permissionsCodeType = typeof(PermissionsCode);
-
-            foreach (Type nestedType in permissionsCodeType.GetNestedTypes(BindingFlags.Public | BindingFlags.Static))
-            {
-                foreach (FieldInfo field in nestedType.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
-                {
-                    // 新增过滤条件：排除名为 "Default" 的字段
-                    if (field.Name != "Default" &&
-                        field.FieldType == typeof(string) &&
-                        field.IsLiteral)
-                    {
-                        string value = (string)field.GetValue(null);
-                        permissions.Add(value);
-                    }
-                }
-            }
-
+            var permissions = _permissionService.GetPermissionKeys();
             result.SetData(permissions);
             return result;
         }

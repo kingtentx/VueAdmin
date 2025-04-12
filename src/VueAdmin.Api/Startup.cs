@@ -13,6 +13,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Text;
 using VueAdmin.Api.SingnalR;
+using Microsoft.AspNetCore.Authorization;
+using VueAdmin.Api.Permissions;
 
 namespace VueAdmin.Api
 {
@@ -116,6 +118,11 @@ namespace VueAdmin.Api
                     ClockSkew = TimeSpan.Zero
                 };
             });
+            #endregion
+
+            #region 注入权限         
+            services.AddScoped<IPermissionService, PermissionService>();
+            services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
             #endregion
 
             #region 注册Swagger服务

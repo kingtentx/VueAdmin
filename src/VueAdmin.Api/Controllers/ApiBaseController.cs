@@ -23,7 +23,7 @@ namespace VueAdmin.Api.Controllers
                     {
                         UserId = Convert.ToInt32(identity.FindFirst(ClaimTypes.Sid)?.Value),
                         UserName = identity.FindFirst(ClaimTypes.Name)?.Value,
-                        Role = !string.IsNullOrWhiteSpace(identity.FindFirst(ClaimTypes.Role)?.Value) ? StringHelper.StrArrToIntArr(identity.FindFirst(ClaimTypes.Role)?.Value.ToString().Split(',')) : new int[] { 0 },
+                        Roles = !string.IsNullOrWhiteSpace(identity.FindFirst(ClaimTypes.Role)?.Value) ? StringHelper.StrArrToIntArr(identity.FindFirst(ClaimTypes.Role)?.Value.ToString().Split(',')) : new int[] { 0 },
                         IsAdmin= Convert.ToBoolean(identity.FindFirst(ClaimTypes.System)?.Value)
                     };
                     return user;
@@ -35,35 +35,6 @@ namespace VueAdmin.Api.Controllers
             }
         }
 
-        ///// <summary>
-        ///// 检查IP
-        ///// </summary>
-        //[ApiExplorerSettings(IgnoreApi = true)]
-        //public bool CheckIPAddress(IConfiguration config)
-        //{
-        //    var isCheckIp = Convert.ToBoolean(config["WhiteIP:IsEnabled"]);
-        //    if (!isCheckIp)
-        //        return true;
-
-        //    try
-        //    {
-        //        var ip = GetIPAddress();
-        //        Log.Information("当前请求IP-->" + ip);
-
-        //        var arr1 = ip.Split(',');
-        //        var arr2 = config["WhiteIP:Address"].Split(',');
-        //        var intersect = arr1.Intersect(arr2);
-        //        if (intersect.Any())
-        //            return true;
-
-        //        return false;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Log.Error("获取IP地址异常-->" + ex.Message);
-        //        return false;
-        //    }
-        //}
 
         /// <summary>
         /// 获取IP

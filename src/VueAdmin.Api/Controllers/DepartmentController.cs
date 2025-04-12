@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using VueAdmin.Api.Dtos;
+using VueAdmin.Api.Permissions;
 using VueAdmin.Data;
 using VueAdmin.Data.ExtModel;
 using VueAdmin.Repository;
@@ -53,21 +54,7 @@ namespace VueAdmin.Api.Controllers
         [HttpGet]
         [Route("list")]
         public async Task<ResultDto<List<DepartmentDto>>> GetDepartmentLis()
-        {
-            //var result = new ResultDto<object>();
-
-            //string filePath = Path.Combine(Directory.GetCurrentDirectory(), "AppData/dept.json");
-            //if (!System.IO.File.Exists(filePath))
-            //{
-            //    result.Msg = "JSON 文件未找到。";
-            //    return result;
-            //}
-            //string jsonContent = System.IO.File.ReadAllText(filePath);
-
-            //var jsonData = JsonConvert.DeserializeObject<object>(jsonContent);
-            //result.SetData(jsonData);
-            //return result;
-
+        {           
             var result = new ResultDto<List<DepartmentDto>>();
             var list = await _deptRepository.GetListAsync(p => p.IsDelete == false, p => p.Sort, isAsc: true);
             var data = _mapper.Map<List<DepartmentDto>>(list);
@@ -77,23 +64,10 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("add")]
+        [PermissionFilter(AuthorizeCode.Department.Add)]
         public async Task<ResultDto<bool>> Create([FromBody] CreateUpdateDepartmentDto input)
         {
-            var result = new ResultDto<bool>();
-
-            //var query = await _deptRepository.GetOneAsync(p => p.Name.Equals(input.Name) && p.IsDelete == false);
-            //if (query != null)
-            //{
-            //    result.Msg = "已存在";
-            //    return result;
-            //}
-
-            //var model = _mapper.Map<Department>(input);
-            //model.CreateBy = LoginUser.UserName;
-
-            //var entity = await _deptRepository.AddAsync(model);
-            //result.SetData(entity.Id > 0);
-            //return result;
+            var result = new ResultDto<bool>();          
 
             try
             {
@@ -127,33 +101,10 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("edit")]
+        [PermissionFilter(AuthorizeCode.Department.Edit)]
         public async Task<ResultDto<bool>> Update([FromBody] CreateUpdateDepartmentDto input)
         {
-            var result = new ResultDto<bool>();
-            //var query = await _deptRepository.GetOneAsync(p => p.Name.Equals(input.Name) && p.Id != input.Id && p.IsDelete == false);
-            //if (query != null)
-            //{
-            //    result.Msg = "已存在";
-            //    return result;
-            //}
-
-            //var entity = _deptRepository.GetQueryable(p => p.Id == input.Id && p.IsDelete == false).AsNoTracking().FirstOrDefault();
-            //if (entity == null)
-            //{
-            //    result.Msg = "数据不存在";
-            //    return result;
-            //}
-
-            //var model = _mapper.Map<Department>(input);
-
-            //model.CreationTime = entity.CreationTime;
-            //model.UpdateBy = LoginUser.UserName;
-            //model.UpdateTime = DateTime.Now;
-
-            //var res = await _deptRepository.UpdateAsync(model);
-            //result.SetData(res);
-            //return result;
-
+            var result = new ResultDto<bool>(); 
 
             if (input == null || input.Id != input.Id)
             {
@@ -268,10 +219,10 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("delete")]
+        [PermissionFilter(AuthorizeCode.Department.Delete)]
         public async Task<ResultDto<bool>> Delete(int[] ids)
         {
             var result = new ResultDto<bool>();
-
             //var list = await _deptRepository.GetListAsync(p => ids.Contains(p.Id));
             var list = await _deptRepository.GetListAsync(p => p.IsDelete == false);
             var items = new List<Department>();

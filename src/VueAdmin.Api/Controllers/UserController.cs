@@ -13,6 +13,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using VueAdmin.Api.Dtos;
+using VueAdmin.Api.Permissions;
 using VueAdmin.Data;
 using VueAdmin.Helper;
 using VueAdmin.Helper.SM4;
@@ -244,6 +245,7 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("add")]
+        [PermissionFilter(AuthorizeCode.User.Add)]
         public async Task<ResultDto<bool>> Create([FromBody] CreateUpdateUserDto input)
         {
             var result = new ResultDto<bool>();
@@ -265,6 +267,7 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("edit")]
+        [PermissionFilter(AuthorizeCode.User.Edit)]
         public async Task<ResultDto<bool>> Update([FromBody] CreateUpdateUserDto input)
         {
             var result = new ResultDto<bool>();
@@ -327,6 +330,7 @@ namespace VueAdmin.Api.Controllers
 
         [HttpPost]
         [Route("delete")]
+        [PermissionFilter(AuthorizeCode.User.Delete)]
         public async Task<ResultDto<bool>> Delete(int[] ids)
         {
             var result = new ResultDto<bool>();
@@ -343,8 +347,14 @@ namespace VueAdmin.Api.Controllers
             return result;
         }
 
+        /// <summary>
+        /// 授权用户角色权限
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("set-role")]
+        [PermissionFilter(AuthorizeCode.User.Authorize)]
         public async Task<ResultDto<bool>> AddUserRole([FromBody] UserRoleDto input)
         {
             var result = new ResultDto<bool>();

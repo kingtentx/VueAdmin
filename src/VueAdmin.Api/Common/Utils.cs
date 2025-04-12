@@ -79,16 +79,6 @@ namespace VueAdmin.Api
             int size = strLength - (strLength / 8) * 2;//4.计算后得到的文件流大小，单位为字节
             return (long)size;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="menu"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static string GetPermissionsCode(string menu, PermissionType type)
-        {
-           return $"{menu}:btn:{type.ToString()}";
-        }
+      
     }
 }
