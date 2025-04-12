@@ -134,7 +134,7 @@ namespace VueAdmin.Api.Controllers
         {
             var result = new List<MenuTreeDto>();
             foreach (var root in roots.Where(p => p.MenuType < (int)MenuType.Button))
-            {
+            {               
                 var menu = new MenuTreeDto
                 {
                     Name = root.Name?.Trim(),

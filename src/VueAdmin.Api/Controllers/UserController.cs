@@ -99,12 +99,12 @@ namespace VueAdmin.Api.Controllers
                 var token = new JwtSecurityToken(_jwtSettings.Issuer, _jwtSettings.Audience, claim, DateTime.Now, DateTime.Now.AddMinutes(_jwtSettings.Expiration), creds);
 
                 //查询用户角色
-                var roles = new List<string>(); //new List<string> { "admin" };
-                if (user.Roles != "0")
-                {
-                    var roleIds = StringHelper.StrArrToIntArr(user.Roles.Split(','));
-                    roles = await _roleRepository.GetQueryable(p => roleIds.Contains(p.Id) && p.IsDelete == false && p.IsActive == true).Select(p => p.Code).ToListAsync();
-                }
+                //var roles = new List<string>(); //new List<string> { "admin" };
+                //if (user.Roles != "0")
+                //{
+                //    var roleIds = StringHelper.StrArrToIntArr(user.Roles.Split(','));
+                //    roles = await _roleRepository.GetQueryable(p => roleIds.Contains(p.Id) && p.IsDelete == false && p.IsActive == true).Select(p => p.Code).ToListAsync();
+                //}
 
                 var info = new UserInfoDto
                 {
@@ -113,7 +113,7 @@ namespace VueAdmin.Api.Controllers
                     Avatar = user.Avatar,
                     AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
                     RefreshToken = "",
-                    Roles = roles,
+                    //Roles = roles,
                     Permissions = new List<string>(), // user.IsAdmin ? new List<string> { "*:*:*" } : new List<string>(),
                     Expires = DateTime.Now.AddMinutes(_jwtSettings.Expiration)
                 };

@@ -14,10 +14,12 @@
         /// 小铭
         /// </summary>
         public string NickName { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<string> Roles { get; set; }
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //public List<string> Roles { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
